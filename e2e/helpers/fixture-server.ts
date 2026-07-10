@@ -20,6 +20,23 @@ export interface FixtureServer {
 export const FIXTURE_SCROLL_REFOCUS_MS = 120;
 
 /**
+ * Delay (ms) between a hover event and the simulated React re-render commit
+ * (X's commits are async: hover state renders on the next React flush).
+ */
+export const FIXTURE_WIPE_DELAY_MS = 50;
+
+/**
+ * How the fixture simulates X's React re-render wiping AdsDim's injected
+ * state off the tweet `<article>` (whose className/attributes React owns):
+ * - `none`  — no wipe (default; specs that predate the wipe realism).
+ * - `class` — rewrite `article.className` wholesale from the VDOM, silently
+ *   dropping every class React does not know about (React DOES do this).
+ * - `attrs` — the `class` wipe PLUS removal of all `data-adsdim-*`
+ *   attributes (worst case: a hostile or key-remounting re-render).
+ */
+export type WipeMode = 'none' | 'class' | 'attrs';
+
+/**
  * Mimics X's dirty timeline behaviors so sticky-state bugs reproduce:
  *
  * - Virtualization: every article is wrapped in a `cellInnerDiv` cell that is
@@ -107,6 +124,54 @@ const X_BEHAVIOR_SCRIPT = `
 `;
 
 /**
+ * Simulated React re-render commit, FIXTURE_WIPE_DELAY_MS after every
+ * article mouseenter/mouseleave — X's hover-triggered re-renders commit
+ * asynchronously and rewrite the article's className wholesale from the VDOM,
+ * erasing any class a content script sneaked in. No childList mutation fires.
+ * In `attrs` mode the commit also strips all `data-adsdim-*` attributes.
+ *
+ * No template literals inside: this string is embedded in one.
+ */
+function renderWipeScript(mode: WipeMode): string {
+  if (mode === 'none') return '';
+  return `
+(function () {
+  var WIPE_DELAY_MS = ${FIXTURE_WIPE_DELAY_MS};
+  var stripDataAttributes = ${mode === 'attrs' ? 'true' : 'false'};
+
+  var commit = function (article) {
+    // React rewrites className from its own props: unknown classes vanish.
+    article.className = article.className
+      .split(' ')
+      .filter(function (name) {
+        return name.indexOf('adsdim') !== 0;
+      })
+      .join(' ');
+    if (stripDataAttributes) {
+      Array.prototype.slice.call(article.attributes).forEach(function (attribute) {
+        if (attribute.name.indexOf('data-adsdim-') === 0) {
+          article.removeAttribute(attribute.name);
+        }
+      });
+    }
+  };
+
+  var scheduleCommit = function (event) {
+    var article = event.currentTarget;
+    setTimeout(function () {
+      commit(article);
+    }, WIPE_DELAY_MS);
+  };
+
+  Array.prototype.slice.call(document.querySelectorAll('article')).forEach(function (article) {
+    article.addEventListener('mouseenter', scheduleCommit);
+    article.addEventListener('mouseleave', scheduleCommit);
+  });
+})();
+`;
+}
+
+/**
  * Wraps the shared timeline fragment (also used by the vitest integration
  * suite) in an X-like page. `?theme=light` serves a white background so the
  * content script's luminance-based theme detection picks `light`; the
@@ -122,7 +187,7 @@ const X_BEHAVIOR_SCRIPT = `
  * System fonts only: no webfont loading can shift layout between the
  * pre-mark and post-mark measurements in the layout-shift spec.
  */
-function renderTimelinePage(theme: 'dark' | 'light'): string {
+function renderTimelinePage(theme: 'dark' | 'light', wipe: WipeMode): string {
   const fragment = readFileSync(FIXTURE_PATH, 'utf8');
   const palette =
     theme === 'light'
@@ -160,7 +225,7 @@ function renderTimelinePage(theme: 'dark' | 'light'): string {
   </head>
   <body>
     <main>${fragment}</main>
-    <script>${X_BEHAVIOR_SCRIPT}</script>
+    <script>${X_BEHAVIOR_SCRIPT}${renderWipeScript(wipe)}</script>
   </body>
 </html>`;
 }
@@ -175,8 +240,10 @@ export function startFixtureServer(): Promise<FixtureServer> {
       return;
     }
     const theme = url.searchParams.get('theme') === 'light' ? 'light' : 'dark';
+    const wipeParam = url.searchParams.get('wipe');
+    const wipe: WipeMode = wipeParam === 'class' || wipeParam === 'attrs' ? wipeParam : 'none';
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(renderTimelinePage(theme));
+    res.end(renderTimelinePage(theme, wipe));
   });
 
   return new Promise((resolvePromise, rejectPromise) => {
