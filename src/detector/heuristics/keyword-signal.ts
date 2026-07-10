@@ -1,12 +1,20 @@
 import type { SignalResult } from '../../types';
 
-/** Disclosure-grade keywords: near-certain commercial intent. */
-const STRONG_KEYWORDS: readonly string[] = [
+/**
+ * Disclosure-format tokens: explicit ad labelling (hashtag disclosures and
+ * "paid partnership"). These are the only keywords trusted on their own.
+ */
+export const DISCLOSURE_KEYWORDS: readonly string[] = [
   '#ad',
   '#sponsored',
   '#广告',
   '#推广',
-  'sponsored',
+  'paid partnership',
+];
+
+/** Strong commercial keywords: disclosures plus explicit promo-code phrasing. */
+const STRONG_KEYWORDS: readonly string[] = [
+  ...DISCLOSURE_KEYWORDS,
   '优惠码',
   '折扣码',
   '促销码',
@@ -15,14 +23,18 @@ const STRONG_KEYWORDS: readonly string[] = [
   'discount code',
 ];
 
-/** Weaker hints that often accompany soft ads. */
+/**
+ * Weaker hints that often accompany soft ads. Bare "sponsored" lives here:
+ * posts frequently *talk about* sponsored things ("the conference was
+ * sponsored by Acme") without being ads themselves.
+ */
 const WEAK_KEYWORDS: readonly string[] = [
   '#合作',
   '#带货',
   'gifted',
   'link in bio',
-  '微信',
   'affiliate',
+  'sponsored',
 ];
 
 const STRONG_WEIGHT = 0.8;
@@ -32,11 +44,13 @@ const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\
 
 /**
  * Word-boundary aware containment check. `#ad` must not match `#advice`,
- * `sponsored` must not match `unsponsored`. CJK keywords match as substrings
- * since CJK has no word boundaries.
+ * `sponsored` must not match `unsponsored` nor `#sponsored` (the hashtag
+ * variant is its own keyword, so bare words reject a leading `#`). CJK
+ * keywords match as substrings since CJK has no word boundaries.
  */
 export function containsKeyword(haystack: string, keyword: string): boolean {
-  const pattern = new RegExp(`(?<![a-z0-9])${escapeRegExp(keyword)}(?![a-z0-9])`, 'i');
+  const prefixGuard = keyword.startsWith('#') ? '(?<![a-z0-9])' : '(?<![a-z0-9#])';
+  const pattern = new RegExp(`${prefixGuard}${escapeRegExp(keyword)}(?![a-z0-9])`, 'i');
   return pattern.test(haystack);
 }
 

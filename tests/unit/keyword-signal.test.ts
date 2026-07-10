@@ -7,6 +7,8 @@ describe('containsKeyword', () => {
     ['#advice for you', '#ad', false],
     ['this is sponsored content', 'sponsored', true],
     ['unsponsored review', 'sponsored', false],
+    ['#sponsored collab', 'sponsored', false],
+    ['#sponsored collab', '#sponsored', true],
     ['我的优惠码在这里', '优惠码', true],
     ['USE CODE now', 'use code', true],
   ])('%j contains %j -> %s', (haystack, keyword, expected) => {
@@ -26,6 +28,10 @@ describe('keywordSignal', () => {
     ['zh hashtag disclosure', '#广告 新品上市', 0.8],
     ['weak zh collab tag', '#合作 内容', 0.4],
     ['plain 广告 mention is not a keyword', '新广告法实施了', 0],
+    ['bare sponsored is only a weak hint', 'The conference was sponsored by Acme, great talks', 0.4],
+    ['hashtag sponsored is strong, not double counted', 'great collab #sponsored', 0.8],
+    ['paid partnership disclosure is strong', 'Paid partnership with Acme Skincare', 0.8],
+    ['casual wechat mention is not a keyword', '刚跟朋友吃饭，他微信上说这家店不错', 0],
   ])('%s -> score %d', (_description, text, expectedScore) => {
     expect(keywordSignal(text).score).toBeCloseTo(expectedScore, 5);
   });
