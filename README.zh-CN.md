@@ -41,4 +41,4 @@ npm run compile    # TypeScript 类型检查
 
 ## 许可证
 
-[Apache-2.0](./LICENSE) © 2026 Chester Lee
+[Apache-2.0](./LICENSE) © 2026 WYSIATI

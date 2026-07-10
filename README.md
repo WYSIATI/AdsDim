@@ -41,4 +41,4 @@ UI strings live in `src/i18n/` (one file per locale, ~20 strings). Add a locale 
 
 ## License
 
-[Apache-2.0](./LICENSE) © 2026 Chester Lee
+[Apache-2.0](./LICENSE) © 2026 WYSIATI
