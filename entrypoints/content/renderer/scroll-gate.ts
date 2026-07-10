@@ -9,8 +9,10 @@ export interface ScrollGate {
 /**
  * Scroll-idle gate for the glass scheme's backdrop-filter (P0: glass is the
  * default scheme). While scrolling, <html> carries `adsdim-scrolling`, which
- * the stylesheet uses to disable backdrop-filter; the class is dropped after
- * 150ms of scroll idleness.
+ * the stylesheet uses to hide the blur-only overlay layer via its composited
+ * opacity (never by toggling backdrop-filter — Chrome may fail to repaint
+ * the blur on re-enable); the class is dropped after 150ms of scroll
+ * idleness.
  */
 export function createScrollGate(win: Window, idleMs: number = SCROLL_IDLE_MS): ScrollGate {
   let idleTimer: ReturnType<typeof setTimeout> | undefined;

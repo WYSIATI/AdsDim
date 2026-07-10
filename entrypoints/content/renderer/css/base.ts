@@ -2,7 +2,7 @@
  * Base plumbing shared by all schemes. Zero layout shift by construction:
  * only background/box-shadow/outline/filter/opacity/transform/overlays.
  * The `article > div` rule mirrors the mockup's `.post-inner`, lifting tweet
- * content above the absolutely-positioned ::before overlay cards.
+ * content above the absolutely-positioned overlay-card pseudo layers.
  */
 export const baseCss = `
 article[data-adsdim-tier] {
@@ -28,11 +28,5 @@ article[data-adsdim-tier] > div {
   font-weight: 600;
   vertical-align: middle;
   white-space: nowrap;
-}
-/* Scroll-idle gating: backdrop-filter is too expensive mid-scroll (P0 for
-   the default glass scheme). Re-enabled 150ms after scrolling stops. */
-html.adsdim-scrolling article[data-adsdim-tier="organic"]::before {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 `;

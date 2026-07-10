@@ -51,9 +51,29 @@ describe('buildStylesheet', () => {
     expect(strongPillBlock).toContain('margin: -3px 0 -3px 6px;');
   });
 
-  it('includes scroll-idle backdrop-filter gating for the glass scheme', () => {
-    expect(css).toContain('html.adsdim-scrolling');
-    expect(css).toContain('backdrop-filter: none !important');
+  it('splits the glass card into a sheen ::before and a blur-only ::after', () => {
+    // The blur must live alone on ::after so the scroll gate can hide it
+    // without touching the sheen (the visible "glass" during scrolling).
+    expect(css).toMatch(
+      /article\[data-adsdim-tier="organic"\]::after \{[^}]*backdrop-filter: blur\(8px\) saturate\(1\.2\)/,
+    );
+    const sheenBlock = css.match(
+      /html\[data-adsdim-scheme="glass"\] article\[data-adsdim-tier="organic"\]::before \{[^}]*\}/,
+    )?.[0];
+    expect(sheenBlock).toBeDefined();
+    expect(sheenBlock).not.toContain('backdrop-filter');
+  });
+
+  it('gates the glass blur during scrolling via opacity, never backdrop-filter', () => {
+    // Toggling backdrop-filter via a rule change can leave Chrome's
+    // compositor with a stale, unblurred backdrop (computed style lies).
+    // Only the blur layer's composited opacity may carry the gate.
+    const gateBlock = css.match(/html\.adsdim-scrolling[^{]*\{[^}]*\}/)?.[0];
+    expect(gateBlock).toBeDefined();
+    expect(gateBlock).toContain('::after');
+    expect(gateBlock).toContain('opacity: 0 !important');
+    expect(gateBlock).not.toContain('backdrop-filter');
+    expect(css).not.toContain('backdrop-filter: none !important');
   });
 
   it('includes CSS-only hover reveal for dimmed ads', () => {

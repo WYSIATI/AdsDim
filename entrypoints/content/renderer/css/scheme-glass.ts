@@ -2,6 +2,16 @@
  * Scheme "glass" (Glass Focus) — normal contrast.
  * Genuine posts float as frosted-glass cards; ads recede, desaturated.
  * Values ported verbatim from design/preview-v2-inverted.html (scheme "a").
+ *
+ * The frosted card is TWO stacked overlay layers:
+ * - ::before — sheen gradient + border ring + shadows. Always on while
+ *   `.adsdim-in`; the scroll gate never touches it.
+ * - ::after — blur-only layer beneath the sheen. The scroll gate toggles
+ *   ONLY this layer's `opacity` (composited, repaint-safe). It must never
+ *   toggle `backdrop-filter` itself: flipping the filter via a rule change
+ *   can leave Chrome's compositor with a stale, unblurred backdrop even
+ *   though computed style claims the filter is active (user-confirmed on
+ *   x.com after trackpad micro-scrolls).
  */
 export const glassCss = `
 html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"]::before {
@@ -10,17 +20,27 @@ html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"]::before {
   inset: 4px 8px;
   border-radius: 16px;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02) 45%, rgba(255, 255, 255, 0.05));
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 4px 16px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(8px) saturate(1.2);
-  -webkit-backdrop-filter: blur(8px) saturate(1.2);
   opacity: 0;
   transform: scale(0.98);
   transition: opacity 400ms ease, transform 400ms ease;
+}
+html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"]::after {
+  content: "";
+  position: absolute;
+  inset: 4px 8px;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 0;
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  opacity: 0;
+  transition: opacity 400ms ease;
 }
 html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"]::before {
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.35));
@@ -28,12 +48,26 @@ html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-
     inset 0 0 0 1px rgba(15, 20, 25, 0.10),
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     0 4px 14px rgba(15, 20, 25, 0.08);
+}
+html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"]::after {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in::before {
   opacity: 1;
   transform: scale(1);
+}
+html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in::after {
+  opacity: 1;
+}
+/* Scroll-idle gate (P0: backdrop-filter is too expensive mid-scroll).
+   While <html> carries adsdim-scrolling the blur layer hides instantly;
+   on release it fades back over the base 400ms transition, forcing a clean
+   compositor invalidation. The sheen layer stays on throughout, so the
+   glass never visually "dies" during hover + trackpad micro-scrolls. */
+html.adsdim-scrolling[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"]::after {
+  opacity: 0 !important;
+  transition: none !important;
 }
 html[data-adsdim-scheme="glass"] article[data-adsdim-tier="hard"],
 html[data-adsdim-scheme="glass"] article[data-adsdim-tier="soft"] {

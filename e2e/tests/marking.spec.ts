@@ -15,11 +15,15 @@ const waitForMarks = async (page: Page): Promise<void> => {
 const styleOf = (locator: Locator, property: string): Promise<string> =>
   locator.evaluate((el, prop) => getComputedStyle(el).getPropertyValue(prop).trim(), property);
 
-/** Computed style of the article's ::before pseudo-element. */
-const beforeStyleOf = (locator: Locator, property: string): Promise<string> =>
+/** Computed style of one of the article's overlay pseudo-elements. */
+const pseudoStyleOf = (
+  locator: Locator,
+  pseudo: '::before' | '::after',
+  property: string,
+): Promise<string> =>
   locator.evaluate(
-    (el, prop) => getComputedStyle(el, '::before').getPropertyValue(prop).trim(),
-    property,
+    (el, { pseudoElement, prop }) => getComputedStyle(el, pseudoElement).getPropertyValue(prop).trim(),
+    { pseudoElement: pseudo, prop: property },
   );
 
 test.describe('tier marking on the timeline', () => {
@@ -94,21 +98,25 @@ test.describe('tier marking on the timeline', () => {
     await expect.poll(() => styleOf(hard, 'filter')).toBe('saturate(0.15) brightness(0.5)');
   });
 
-  test('genuine posts get the frosted glass ::before overlay', async ({ page, timelineUrl }) => {
+  test('genuine posts get the frosted glass overlay layers', async ({ page, timelineUrl }) => {
     await page.goto(timelineUrl());
     await waitForMarks(page);
 
+    // Sheen on ::before, blur alone on ::after (scroll-gated via opacity).
     const organic = article(page, 'organic-en');
     await expect
-      .poll(() => beforeStyleOf(organic, 'backdrop-filter'))
+      .poll(() => pseudoStyleOf(organic, '::after', 'backdrop-filter'))
       .toBe('blur(8px) saturate(1.2)');
-    await expect.poll(() => beforeStyleOf(organic, 'opacity')).toBe('1');
+    await expect.poll(() => pseudoStyleOf(organic, '::after', 'opacity')).toBe('1');
+    await expect.poll(() => pseudoStyleOf(organic, '::before', 'opacity')).toBe('1');
+    expect(await pseudoStyleOf(organic, '::before', 'backdrop-filter')).toBe('none');
     // Strong-contrast dark glass card: inset border + deep drop shadow.
-    expect(await beforeStyleOf(organic, 'box-shadow')).toContain('inset');
+    expect(await pseudoStyleOf(organic, '::before', 'box-shadow')).toContain('inset');
 
-    // Ads must NOT get the overlay.
+    // Ads must NOT get either overlay layer.
     const hard = article(page, 'promoted-en');
-    expect(await beforeStyleOf(hard, 'backdrop-filter')).toBe('none');
+    expect(await pseudoStyleOf(hard, '::before', 'backdrop-filter')).toBe('none');
+    expect(await pseudoStyleOf(hard, '::after', 'backdrop-filter')).toBe('none');
   });
 
   test('light pages are detected and flip the theme attribute', async ({ page, timelineUrl }) => {
