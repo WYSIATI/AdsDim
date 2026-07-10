@@ -61,17 +61,18 @@ describe('buildStylesheet', () => {
     expect(css).toContain('filter: none !important');
   });
 
-  it('reveals dimmed ads for keyboard focus via :focus-visible', () => {
-    expect(css).toContain(':focus-visible');
-    expect(css).toContain(':has(:focus-visible)');
+  it('reveals dimmed ads for keyboard focus via the JS-managed class', () => {
+    expect(css).toContain('.adsdim-kb-reveal');
   });
 
-  it('never keys the reveal on :focus-within or bare :focus', () => {
-    // Clicking a tweet parks :focus inside the article and X's SPA
-    // back-navigation restores it, so a :focus-within (or :focus) reveal
-    // would pin clicked ads open indefinitely.
-    expect(css).not.toContain(':focus-within');
-    expect(css).not.toMatch(/:focus(?![-a-z])/);
+  it('never keys the reveal on any focus pseudo-class', () => {
+    // X programmatically re-focuses timeline tweets after clicks and during
+    // scrolling, and Chromium applies :focus-visible to programmatic focus
+    // whenever the session had no mousedown yet or the last input was a key.
+    // Mouse movement never blurs the tweet, so ANY focus pseudo-class reveal
+    // (:focus, :focus-within, :focus-visible, :has(:focus-visible)) latches
+    // indefinitely. Keyboard reveal lives in renderer/keyboard-reveal.ts.
+    expect(css).not.toContain(':focus');
   });
 
   it('orders strong-contrast overrides after the normal scheme rules', () => {

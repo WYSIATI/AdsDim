@@ -43,7 +43,7 @@ test.describe('hover reveal of dimmed ads', () => {
     const ad = article(page, 'promoted-en');
     await expect.poll(() => opacityOf(ad)).toBe(DIMMED_OPACITY);
 
-    await ad.click({ position: { x: 200, y: 30 } });
+    await ad.click({ position: { x: 450, y: 30 } });
     await expect.poll(() => opacityOf(ad)).toBe('1');
 
     await parkPointer(page);
@@ -67,7 +67,7 @@ test.describe('hover reveal of dimmed ads', () => {
 
     // Click the ad (focus lands on its cell), then simulate X's SPA navigation:
     // the timeline is hidden behind a detail view, and restored on "Back".
-    await ad.click({ position: { x: 200, y: 30 } });
+    await ad.click({ position: { x: 450, y: 30 } });
     await page.evaluate(() => {
       const main = document.querySelector('main');
       const timeline = main?.firstElementChild;

@@ -12,6 +12,7 @@ import { createViewportObserver } from './observer/viewport-observer';
 import { classifyTweet, resolveMarkTier } from './pipeline/classify-tweet';
 import { applyRootState, clearMarks, renderMark } from './renderer/mark-renderer';
 import { buildWhyTitle } from './renderer/why-tooltip';
+import { createKeyboardReveal } from './renderer/keyboard-reveal';
 import { createScrollGate } from './renderer/scroll-gate';
 import { injectStyles } from './renderer/styles';
 import { detectTheme, watchTheme } from './renderer/theme';
@@ -39,6 +40,11 @@ async function bootstrap(): Promise<void> {
 
   const scrollGate = createScrollGate(window);
   scrollGate.start();
+
+  // Keyboard accessibility for the reveal without CSS focus pseudo-classes
+  // (those latch on X's programmatic focus management).
+  const keyboardReveal = createKeyboardReveal(window);
+  keyboardReveal.start();
 
   const processArticles = (articles: readonly Element[]): void => {
     if (!settings.enabled) return;

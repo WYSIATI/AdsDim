@@ -1,19 +1,21 @@
 /**
  * Hovering a dimmed ad — or reaching it with the keyboard — restores full
- * visibility. CSS only, loaded last.
+ * visibility. Loaded last.
  * `!important` intentionally beats every theme × scheme × contrast combo.
  * Theater keeps the mockup's 0.95 resting-hover opacity; the other schemes
  * restore fully.
  *
- * Keyboard reveal is keyed on `:focus-visible` (on the article itself or on
- * any descendant via `:has()`), deliberately never on `:focus-within` or
- * bare `:focus`: X's articles are focusable (tabindex="0"), so a mouse click
- * parks `:focus` inside the article and X's SPA back-navigation restores it.
- * A `:focus-within` reveal would therefore stay pinned open after a click or
- * a back-navigation, while `:focus-visible` only matches keyboard-driven
- * focus — pointer users keep pure hover semantics.
+ * Keyboard reveal is keyed on the JS-managed `adsdim-kb-reveal` class (see
+ * renderer/keyboard-reveal.ts), deliberately NEVER on any focus
+ * pseudo-class — not `:focus`, `:focus-within`, `:focus-visible`, nor
+ * `:has(:focus-visible)`. X programmatically re-focuses timeline tweets
+ * after clicks and during scrolling (keyboard-nav anchoring), and Chromium
+ * applies `:focus-visible` to programmatic `.focus()` whenever the session
+ * has had no mousedown yet or the last input was a key. Mouse movement
+ * never blurs the tweet, so any focus-pseudo-class reveal latches
+ * indefinitely (user-confirmed on x.com). Pointer users get pure `:hover`.
  */
-const reveal = ':is(:hover, :focus-visible, :has(:focus-visible))';
+const reveal = ':is(:hover, .adsdim-kb-reveal)';
 
 export const hoverRevealCss = `
 html[data-adsdim-scheme="glass"] article[data-adsdim-tier="hard"].adsdim-in${reveal},
