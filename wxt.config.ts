@@ -20,7 +20,7 @@ export default defineConfig({
   manifest: {
     name: 'AdsDim',
     description:
-      'Dim the ads, let real posts shine. Marks ads on the x.com timeline without ever hiding posts. 标记广告，从不隐藏帖子。',
+      'Dim the ads, let real posts shine. Marks ads on the x.com timeline without ever hiding posts.',
     permissions: ['storage'],
   },
   hooks: {
