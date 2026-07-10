@@ -18,14 +18,6 @@ const waitForMarks = async (page: Page): Promise<void> => {
 /** Parks the pointer on the page background, away from every article. */
 const parkPointer = (page: Page): Promise<void> => page.mouse.move(5, 5);
 
-/**
- * X's tweet articles are keyboard-focusable. The fixture mirrors that here
- * (instead of in timeline.html) so the vitest integration suite stays
- * byte-identical to the DOM shapes it asserts on.
- */
-const makeArticleFocusable = (locator: Locator): Promise<void> =>
-  locator.evaluate((el) => el.setAttribute('tabindex', '0'));
-
 test.describe('hover reveal of dimmed ads', () => {
   test('hovering reveals the ad and leaving re-dims it', async ({ page, timelineUrl }) => {
     await page.goto(timelineUrl());
@@ -49,17 +41,17 @@ test.describe('hover reveal of dimmed ads', () => {
     await waitForMarks(page);
 
     const ad = article(page, 'promoted-en');
-    await makeArticleFocusable(ad);
     await expect.poll(() => opacityOf(ad)).toBe(DIMMED_OPACITY);
 
     await ad.click({ position: { x: 200, y: 30 } });
     await expect.poll(() => opacityOf(ad)).toBe('1');
 
     await parkPointer(page);
-    // The click left :focus inside the article — exactly the state X restores
-    // after visiting a post and navigating back. The reveal must not latch
-    // onto it (regression guard against :focus-within-style rules).
-    expect(await ad.evaluate((el) => el.contains(el.ownerDocument.activeElement))).toBe(true);
+    // The fixture mimics X: clicking parked programmatic focus on the ad's
+    // timeline cell. The reveal must not latch onto it.
+    expect(
+      await ad.evaluate((el) => el.ownerDocument.activeElement === el.parentElement),
+    ).toBe(true);
     await expect.poll(() => opacityOf(ad)).toBe(DIMMED_OPACITY);
   });
 
@@ -71,10 +63,9 @@ test.describe('hover reveal of dimmed ads', () => {
     await waitForMarks(page);
 
     const ad = article(page, 'promoted-en');
-    await makeArticleFocusable(ad);
     await expect.poll(() => opacityOf(ad)).toBe(DIMMED_OPACITY);
 
-    // Click the ad (focus lands inside it), then simulate X's SPA navigation:
+    // Click the ad (focus lands on its cell), then simulate X's SPA navigation:
     // the timeline is hidden behind a detail view, and restored on "Back".
     await ad.click({ position: { x: 200, y: 30 } });
     await page.evaluate(() => {
