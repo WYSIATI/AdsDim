@@ -15,7 +15,7 @@ AdsDim is an open-source MV3 Chrome extension that **marks** ads on the x.com ti
   - **Glow Lane** — genuine posts earn a gradient ring and left glow; ads fade toward gray.
   - **Theater** — ads dim like house lights going down; genuine posts stay at full brightness.
 - 🖱️ **Hover to reveal** — hovering any dimmed ad restores full visibility (CSS only).
-- 🌍 **Multilingual** — UI localized (English, 简体中文; more welcome), and ad-label detection works regardless of your X display language.
+- 🌍 **Multilingual** — UI localized (English by default, switchable in settings; more welcome), and ad-label detection works regardless of your X display language.
 - 🌗 **Auto dark/light theme**, zero layout shift, safe with X's virtualized timeline.
 
 ## Privacy
