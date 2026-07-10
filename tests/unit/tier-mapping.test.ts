@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
+import type { AggregateResult } from '../../src/detector/heuristics/score-aggregator';
 import {
   BASE_THRESHOLDS,
+  mapAggregateToTier,
   mapScoreToTier,
   thresholdsForSensitivity,
 } from '../../src/detector/tier-mapping';
+
+const aggregate = (
+  score: number,
+  firedCategories: AggregateResult['firedCategories'],
+  hasDisclosure = false,
+): AggregateResult => ({ score, firedCategories, hasDisclosure });
 
 describe('mapScoreToTier boundaries (default thresholds)', () => {
   it.each([
@@ -17,6 +25,38 @@ describe('mapScoreToTier boundaries (default thresholds)', () => {
     [0, null],
   ] as const)('score %d -> %s', (score, expected) => {
     expect(mapScoreToTier(score)).toBe(expected);
+  });
+});
+
+describe('mapAggregateToTier corroboration rule', () => {
+  it('never marks from a single non-disclosure category, whatever the score', () => {
+    expect(mapAggregateToTier(aggregate(0.44, ['keyword']))).toBeNull();
+    expect(mapAggregateToTier(aggregate(0.35, ['url']))).toBeNull();
+    expect(mapAggregateToTier(aggregate(0.99, ['discount-code']))).toBeNull();
+  });
+
+  it('marks a single category when a disclosure token fired', () => {
+    expect(mapAggregateToTier(aggregate(0.44, ['keyword'], true))).toBe('potential');
+    expect(mapAggregateToTier(aggregate(0.66, ['keyword'], true))).toBe('soft');
+  });
+
+  it('maps by score when two independent categories corroborate', () => {
+    expect(mapAggregateToTier(aggregate(0.395, ['keyword', 'url']))).toBe('potential');
+    expect(mapAggregateToTier(aggregate(0.86, ['keyword', 'discount-code']))).toBe('soft');
+  });
+
+  it('still requires the potential threshold even with corroboration', () => {
+    expect(mapAggregateToTier(aggregate(0.2, ['keyword', 'url']))).toBeNull();
+  });
+
+  it('returns null for an empty aggregate', () => {
+    expect(mapAggregateToTier(aggregate(0, []))).toBeNull();
+  });
+
+  it('honours custom thresholds', () => {
+    expect(mapAggregateToTier(aggregate(0.6, ['keyword', 'url']), thresholdsForSensitivity(1))).toBe(
+      'soft',
+    );
   });
 });
 

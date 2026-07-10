@@ -12,6 +12,8 @@ export interface Classification {
   readonly tier: AdTier | null;
   readonly source: ClassificationSource;
   readonly confidence: number;
+  /** Heuristic signals that fired (score > 0); empty for promoted-label hits. */
+  readonly signals: readonly SignalResult[];
 }
 
 /** Immutable snapshot of a tweet extracted from the DOM. */
@@ -28,6 +30,8 @@ export interface SignalResult {
   readonly id: SignalId;
   readonly score: number;
   readonly matches: readonly string[];
+  /** True when a disclosure-format token (#ad, #广告, ...) matched. */
+  readonly disclosure?: boolean;
 }
 
 export type SignalId = 'keyword' | 'url' | 'discount-code' | 'contact-info';

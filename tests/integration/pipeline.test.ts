@@ -93,6 +93,7 @@ describe('resolveMarkTier', () => {
     tier,
     source: 'heuristics',
     confidence: tier === null ? 0 : 0.7,
+    signals: [],
   });
 
   it('maps null tier to organic', () => {

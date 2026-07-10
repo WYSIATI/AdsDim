@@ -1,4 +1,5 @@
 import type { AdTier } from '../types';
+import type { AggregateResult } from './heuristics/score-aggregator';
 
 export interface TierThresholds {
   /** Score at or above this maps to 'soft'. */
@@ -27,6 +28,20 @@ export function thresholdsForSensitivity(sensitivity: number): TierThresholds {
     soft: clamp(BASE_THRESHOLDS.soft - shift, 0.05, 0.95),
     potential: clamp(BASE_THRESHOLDS.potential - shift, 0.05, 0.95),
   };
+}
+
+/**
+ * Corroboration rule: a post is only marked when a disclosure-format token
+ * fired, or at least two independent signal categories agree. A single
+ * lexical hit — one bare keyword, one storefront link — is never enough.
+ */
+export function mapAggregateToTier(
+  aggregate: AggregateResult,
+  thresholds: TierThresholds = BASE_THRESHOLDS,
+): AdTier | null {
+  const corroborated = aggregate.hasDisclosure || aggregate.firedCategories.length >= 2;
+  if (!corroborated) return null;
+  return mapScoreToTier(aggregate.score, thresholds);
 }
 
 /** Maps an aggregated heuristic score to a tier (or null for organic). */

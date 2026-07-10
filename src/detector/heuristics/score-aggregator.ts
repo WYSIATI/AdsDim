@@ -11,13 +11,28 @@ export const SIGNAL_WEIGHTS: Readonly<Record<SignalId, number>> = {
   'contact-info': 0.2,
 };
 
-/** Aggregates weighted signal scores into a 0..1 ad-likelihood score. */
-export function aggregateScore(signals: readonly SignalResult[]): number {
-  const total = signals.reduce(
+/** Aggregated heuristic evidence for one tweet. */
+export interface AggregateResult {
+  /** Weighted 0..1 ad-likelihood score. */
+  readonly score: number;
+  /** Signal categories that produced a non-zero score. */
+  readonly firedCategories: readonly SignalId[];
+  /** True when any fired signal matched a disclosure-format token. */
+  readonly hasDisclosure: boolean;
+}
+
+/** Aggregates weighted signal scores into a single evidence summary. */
+export function aggregateSignals(signals: readonly SignalResult[]): AggregateResult {
+  const fired = signals.filter((signal) => clamp01(signal.score) > 0);
+  const total = fired.reduce(
     (sum, signal) => sum + (SIGNAL_WEIGHTS[signal.id] ?? 0) * clamp01(signal.score),
     0,
   );
-  return Math.min(1, total);
+  return {
+    score: Math.min(1, total),
+    firedCategories: fired.map((signal) => signal.id),
+    hasDisclosure: fired.some((signal) => signal.disclosure === true),
+  };
 }
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));

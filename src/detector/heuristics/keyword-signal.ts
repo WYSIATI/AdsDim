@@ -67,6 +67,7 @@ export function keywordSignal(text: string, extraKeywords: readonly string[] = [
     1,
     (strong.length + extra.length) * STRONG_WEIGHT + weak.length * WEAK_WEIGHT,
   );
+  const disclosure = strong.some((keyword) => DISCLOSURE_KEYWORDS.includes(keyword));
 
-  return { id: 'keyword', score, matches: [...strong, ...weak, ...extra] };
+  return { id: 'keyword', score, matches: [...strong, ...weak, ...extra], disclosure };
 }

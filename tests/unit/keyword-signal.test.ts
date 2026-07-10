@@ -43,6 +43,19 @@ describe('keywordSignal', () => {
     expect(result.matches).toContain('gifted');
   });
 
+  it.each([
+    ['#ad here we go', true],
+    ['#sponsored collab', true],
+    ['#广告 新品', true],
+    ['#推广 内容', true],
+    ['paid partnership with acme', true],
+    ['use code SAVE20', false],
+    ['用我的优惠码下单', false],
+    ['just a normal post', false],
+  ])('%j disclosure -> %s', (text, expected) => {
+    expect(keywordSignal(text).disclosure).toBe(expected);
+  });
+
   it('honours user-defined extra keywords as strong signals', () => {
     const result = keywordSignal('限时团购开始啦', ['团购']);
     expect(result.score).toBeCloseTo(0.8, 5);
