@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# WXT
+.wxt/
+.output/
+
+# Build / coverage
+dist/
+coverage/
+stats.html
+stats-*.json
+
+# Env
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
