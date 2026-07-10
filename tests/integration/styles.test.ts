@@ -57,8 +57,21 @@ describe('buildStylesheet', () => {
   });
 
   it('includes CSS-only hover reveal for dimmed ads', () => {
-    expect(css).toMatch(/article\[data-adsdim-tier="hard"\]\.adsdim-in:hover/);
+    expect(css).toMatch(/article\[data-adsdim-tier="hard"\]\.adsdim-in:is\(:hover/);
     expect(css).toContain('filter: none !important');
+  });
+
+  it('reveals dimmed ads for keyboard focus via :focus-visible', () => {
+    expect(css).toContain(':focus-visible');
+    expect(css).toContain(':has(:focus-visible)');
+  });
+
+  it('never keys the reveal on :focus-within or bare :focus', () => {
+    // Clicking a tweet parks :focus inside the article and X's SPA
+    // back-navigation restores it, so a :focus-within (or :focus) reveal
+    // would pin clicked ads open indefinitely.
+    expect(css).not.toContain(':focus-within');
+    expect(css).not.toMatch(/:focus(?![-a-z])/);
   });
 
   it('orders strong-contrast overrides after the normal scheme rules', () => {
