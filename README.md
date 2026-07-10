@@ -31,6 +31,7 @@ npm run build      # production build
 npm test           # unit + integration tests (Vitest)
 npm run lint       # ESLint
 npm run compile    # TypeScript typecheck
+npm run playground # manual fixture testing (run in browser, requires build:e2e)
 ```
 
 Design mockups live in `design/` (`preview-v2-inverted.html` is the CSS source of truth for the renderer).

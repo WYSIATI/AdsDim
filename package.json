@@ -20,7 +20,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test --config e2e/playwright.config.ts",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "playground": "node scripts/playground.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",

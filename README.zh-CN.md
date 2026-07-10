@@ -31,6 +31,7 @@ npm run build      # 生产构建
 npm test           # 单元 + 集成测试(Vitest)
 npm run lint       # ESLint
 npm run compile    # TypeScript 类型检查
+npm run playground # 手动fixture测试(在浏览器运行,需要build:e2e)
 ```
 
 设计稿见 `design/`(`preview-v2-inverted.html` 是渲染器的 CSS 来源)。
