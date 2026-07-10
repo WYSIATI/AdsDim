@@ -83,3 +83,29 @@ describe('live x.com search false-negative regressions (2026-07)', () => {
     expect(verdict('有人有优惠码吗？求一个，最好能叠加').tier).toBe(null);
   });
 });
+
+describe('English soft-ad coverage (2026-07 tuning)', () => {
+  it('marks a concrete code offer without other signals (disclosure-grade)', () => {
+    expect(verdict('Obsessed with this serum ✨ 20% off with code GLOW20').tier).toBe('potential');
+  });
+
+  it('marks an LTK affiliate link on its own (disclosure-grade domain)', () => {
+    expect(verdict('Fall outfit details ⬇️', ['https://liketk.it/4aBcD']).tier).toBe('potential');
+  });
+
+  it('marks keyword + code corroboration as soft', () => {
+    expect(verdict('#ad my honest review — use code SAVE20 at checkout').tier).toBe('soft');
+  });
+
+  it('ignores technical error codes', () => {
+    expect(verdict('MongoDB keeps throwing error code E11000 duplicate key').tier).toBe(null);
+  });
+
+  it('ignores reported sales news (phrase without token, single category)', () => {
+    expect(verdict('The whole store is 20% off this weekend apparently').tier).toBe(null);
+  });
+
+  it('still ignores discussing sponsorship (weak keywords, single category)', () => {
+    expect(verdict('The stadium is sponsored by a bank, shop now has new merch too').tier).toBe(null);
+  });
+});

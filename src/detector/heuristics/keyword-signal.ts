@@ -34,10 +34,19 @@ const STRONG_KEYWORDS: readonly string[] = [
 const WEAK_KEYWORDS: readonly string[] = [
   '#合作',
   '#带货',
+  '#partner',
+  '#ambassador',
   'gifted',
   'link in bio',
   'affiliate',
   'sponsored',
+  'shop now',
+  'free shipping',
+  'use my link',
+  'referral link',
+  'brand ambassador',
+  'in partnership with',
+  'at checkout',
 ];
 
 const STRONG_WEIGHT = 0.8;

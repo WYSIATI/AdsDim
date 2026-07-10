@@ -7,7 +7,9 @@ import type { SignalId, SignalResult } from '../../types';
 export const SIGNAL_WEIGHTS: Readonly<Record<SignalId, number>> = {
   keyword: 0.55,
   url: 0.35,
-  'discount-code': 0.3,
+  // 0.4 so a disclosure-grade concrete code offer clears the potential
+  // threshold (0.35) on its own.
+  'discount-code': 0.4,
   'contact-info': 0.2,
 };
 
