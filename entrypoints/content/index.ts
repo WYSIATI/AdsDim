@@ -11,6 +11,7 @@ import { createTimelineObserver } from './observer/timeline-observer';
 import { createViewportObserver } from './observer/viewport-observer';
 import { classifyTweet, resolveMarkTier } from './pipeline/classify-tweet';
 import { applyRootState, clearMarks, renderMark } from './renderer/mark-renderer';
+import { buildWhyTitle } from './renderer/why-tooltip';
 import { createScrollGate } from './renderer/scroll-gate';
 import { injectStyles } from './renderer/styles';
 import { detectTheme, watchTheme } from './renderer/theme';
@@ -43,7 +44,12 @@ async function bootstrap(): Promise<void> {
     if (!settings.enabled) return;
     for (const article of articles) {
       const { classification } = classifyTweet(article, { settings, cache });
-      renderMark(article, resolveMarkTier(classification, settings), messages.pills);
+      renderMark(
+        article,
+        resolveMarkTier(classification, settings),
+        messages.pills,
+        buildWhyTitle(classification),
+      );
       viewport.observe(article);
     }
   };

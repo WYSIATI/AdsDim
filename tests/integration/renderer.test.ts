@@ -49,6 +49,20 @@ describe('renderMark', () => {
     expect(organic.querySelector(`.${PILL_CLASS}`)).toBeNull();
   });
 
+  it('sets the why explanation as the pill title attribute', () => {
+    const article = fixtureArticle(doc, 'promoted-en');
+    renderMark(article, 'hard', labels, 'AdsDim: promoted label');
+    expect(article.querySelector(`.${PILL_CLASS}`)?.getAttribute('title')).toBe(
+      'AdsDim: promoted label',
+    );
+  });
+
+  it('renders no title attribute when no explanation is given', () => {
+    const article = fixtureArticle(doc, 'promoted-en');
+    renderMark(article, 'hard', labels);
+    expect(article.querySelector(`.${PILL_CLASS}`)?.hasAttribute('title')).toBe(false);
+  });
+
   it('is idempotent: marking twice yields exactly one pill and reports no change', () => {
     const article = fixtureArticle(doc, 'promoted-en');
     expect(renderMark(article, 'hard', labels)).toBe(true);

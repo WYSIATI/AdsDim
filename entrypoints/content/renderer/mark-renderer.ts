@@ -19,8 +19,14 @@ export interface PillLabels {
  * off the data attribute — the DOM change is attribute + one pill span.
  * Idempotent: re-invoking with the same tier is a no-op; a changed tier
  * swaps the attribute and pill in place. Returns true when the DOM changed.
+ * `why` becomes the pill's native title tooltip explaining the verdict.
  */
-export function renderMark(article: Element, tier: MarkTier, labels: PillLabels): boolean {
+export function renderMark(
+  article: Element,
+  tier: MarkTier,
+  labels: PillLabels,
+  why?: string | null,
+): boolean {
   if (article.getAttribute(TIER_ATTR) === tier) {
     return false;
   }
@@ -28,15 +34,23 @@ export function renderMark(article: Element, tier: MarkTier, labels: PillLabels)
   article.querySelector(`.${PILL_CLASS}`)?.remove();
   article.setAttribute(TIER_ATTR, tier);
   if (tier !== 'organic') {
-    injectPill(article, tier, labels[tier]);
+    injectPill(article, tier, labels[tier], why ?? null);
   }
   return true;
 }
 
-function injectPill(article: Element, tier: Exclude<MarkTier, 'organic'>, label: string): void {
+function injectPill(
+  article: Element,
+  tier: Exclude<MarkTier, 'organic'>,
+  label: string,
+  why: string | null,
+): void {
   const pill = article.ownerDocument.createElement('span');
   pill.className = `${PILL_CLASS} ${PILL_CLASS}--${tier}`;
   pill.textContent = label;
+  if (why !== null) {
+    pill.setAttribute('title', why);
+  }
 
   const nameRow = article.querySelector(X_SELECTORS.userName);
   (nameRow ?? article).appendChild(pill);

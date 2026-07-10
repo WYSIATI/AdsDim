@@ -36,6 +36,7 @@ test.describe('tier marking on the timeline', () => {
       await expect(pill).toBeVisible();
       await expect(pill).toHaveText('Ad');
       await expect(pill).toHaveClass(/adsdim-pill--hard/);
+      await expect(pill).toHaveAttribute('title', 'AdsDim: promoted label');
     }
   });
 
@@ -46,10 +47,19 @@ test.describe('tier marking on the timeline', () => {
     const soft = article(page, 'soft-zh');
     await expect(soft).toHaveAttribute('data-adsdim-tier', 'soft');
     await expect(soft.locator('.adsdim-pill')).toHaveText('Sponsored');
+    // The why tooltip lists the fired signal categories and matches.
+    await expect(soft.locator('.adsdim-pill')).toHaveAttribute(
+      'title',
+      /^AdsDim: keyword\(优惠码\), url\(amzn\.to/,
+    );
 
     const potential = article(page, 'potential-en');
     await expect(potential).toHaveAttribute('data-adsdim-tier', 'potential');
     await expect(potential.locator('.adsdim-pill')).toHaveText('Possible');
+    await expect(potential.locator('.adsdim-pill')).toHaveAttribute(
+      'title',
+      /^AdsDim: keyword\(link in bio\), url\(linktr\.ee/,
+    );
   });
 
   test('organic articles are tiered organic and never get a pill', async ({
