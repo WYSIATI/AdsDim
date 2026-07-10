@@ -12,9 +12,17 @@ export interface ScrollGate {
  * the stylesheet uses to hide the blur-only overlay layer via its composited
  * opacity (never by toggling backdrop-filter — Chrome may fail to repaint
  * the blur on re-enable); the class is dropped after 150ms of scroll
- * idleness.
+ * idleness. (The <html> element is outside X's React root, so a class is
+ * safe here — unlike on tweet articles.)
+ *
+ * `onIdle` fires once each time the gate releases — the hook the self-heal
+ * sweep rides to re-assert marking state on the now-visible articles.
  */
-export function createScrollGate(win: Window, idleMs: number = SCROLL_IDLE_MS): ScrollGate {
+export function createScrollGate(
+  win: Window,
+  idleMs: number = SCROLL_IDLE_MS,
+  onIdle?: () => void,
+): ScrollGate {
   let idleTimer: ReturnType<typeof setTimeout> | undefined;
 
   const root = () => win.document.documentElement;
@@ -25,6 +33,7 @@ export function createScrollGate(win: Window, idleMs: number = SCROLL_IDLE_MS): 
     idleTimer = setTimeout(() => {
       root().classList.remove(SCROLLING_CLASS);
       idleTimer = undefined;
+      onIdle?.();
     }, idleMs);
   };
 

@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createTimelineObserver } from '../../entrypoints/content/observer/timeline-observer';
+import {
+  createTimelineObserver,
+  WATCHED_ATTRIBUTES,
+} from '../../entrypoints/content/observer/timeline-observer';
 import { loadFixture } from '../helpers/fixture';
 
 afterEach(() => {
@@ -57,6 +60,50 @@ describe('createTimelineObserver', () => {
     const onArticles = vi.fn();
     const observer = createTimelineObserver(document, onArticles, 5);
     observer.start();
+    expect(onArticles).not.toHaveBeenCalled();
+    observer.stop();
+  });
+
+  it('rescans when a marking attribute is erased from an existing article', async () => {
+    // X's React re-renders can strip our data-* attributes in place: no
+    // childList mutation fires, so the observer must watch the attributes
+    // themselves to heal the marking.
+    const article = document.createElement('article');
+    article.setAttribute('data-testid', 'tweet');
+    article.setAttribute('data-adsdim-tier', 'hard');
+    article.setAttribute('data-adsdim-in', '1');
+    document.body.appendChild(article);
+
+    const onArticles = vi.fn();
+    const observer = createTimelineObserver(document, onArticles, 5);
+    observer.start();
+    onArticles.mockClear();
+
+    for (const attribute of WATCHED_ATTRIBUTES) {
+      article.removeAttribute(attribute);
+      await flush(30);
+      expect(onArticles).toHaveBeenCalledTimes(1);
+      expect(onArticles.mock.calls[0]?.[0]).toEqual([article]);
+      onArticles.mockClear();
+    }
+    observer.stop();
+  });
+
+  it('ignores class mutations — X churns classes constantly', async () => {
+    const article = document.createElement('article');
+    article.setAttribute('data-testid', 'tweet');
+    document.body.appendChild(article);
+
+    const onArticles = vi.fn();
+    const observer = createTimelineObserver(document, onArticles, 5);
+    observer.start();
+    onArticles.mockClear();
+
+    // Simulated React commit: className rewritten wholesale.
+    article.className = 'css-175oi2r r-1igl3o0';
+    article.setAttribute('aria-labelledby', 'id-rewritten-by-react');
+
+    await flush(30);
     expect(onArticles).not.toHaveBeenCalled();
     observer.stop();
   });

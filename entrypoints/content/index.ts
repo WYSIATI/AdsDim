@@ -7,13 +7,14 @@ import type { Settings } from '../../src/storage/schema';
 import { createSettingsStore } from '../../src/storage/settings-store';
 import type { Classification } from '../../src/types';
 import { logger } from '../../src/utils/logger';
+import { sweepVisibleArticles } from './observer/heal-sweep';
 import { createTimelineObserver } from './observer/timeline-observer';
 import { createViewportObserver } from './observer/viewport-observer';
 import { classifyTweet, resolveMarkTier } from './pipeline/classify-tweet';
 import { applyRootState, clearMarks, renderMark } from './renderer/mark-renderer';
 import { buildWhyTitle } from './renderer/why-tooltip';
 import { createKeyboardReveal } from './renderer/keyboard-reveal';
-import { createScrollGate } from './renderer/scroll-gate';
+import { createScrollGate, SCROLL_IDLE_MS } from './renderer/scroll-gate';
 import { injectStyles } from './renderer/styles';
 import { detectTheme, watchTheme } from './renderer/theme';
 
@@ -38,9 +39,6 @@ async function bootstrap(): Promise<void> {
   injectStyles(document);
   applyRootState(document, settings, detectTheme(document));
 
-  const scrollGate = createScrollGate(window);
-  scrollGate.start();
-
   // Keyboard accessibility for the reveal without CSS focus pseudo-classes
   // (those latch on X's programmatic focus management).
   const keyboardReveal = createKeyboardReveal(window);
@@ -59,6 +57,13 @@ async function bootstrap(): Promise<void> {
       viewport.observe(article);
     }
   };
+
+  // Scroll-idle doubles as the self-heal sweep: re-assert marking state on
+  // the visible articles in case X's React erased it (cache-hit cheap).
+  const scrollGate = createScrollGate(window, SCROLL_IDLE_MS, () =>
+    sweepVisibleArticles(document, window, processArticles),
+  );
+  scrollGate.start();
 
   const timeline = createTimelineObserver(document, processArticles);
   timeline.start();
