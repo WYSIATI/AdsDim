@@ -30,11 +30,30 @@ html[data-adsdim-scheme="glass"][data-adsdim-contrast="strong"] article[data-ads
     inset 0 0 0 1px rgba(255, 255, 255, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 8px 28px rgba(0, 0, 0, 0.6);
+  /* Restore the 120ms hover-enhance timing that the generic 200ms
+     transition-duration rule above would otherwise flatten. */
+  transition: opacity 200ms ease, transform 200ms ease, background 120ms ease, box-shadow 120ms ease;
 }
 html[data-adsdim-theme="light"][data-adsdim-scheme="glass"][data-adsdim-contrast="strong"] article[data-adsdim-tier="organic"]::before {
   background: linear-gradient(160deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.56));
   box-shadow:
     inset 0 0 0 1px rgba(15, 20, 25, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 8px 24px rgba(15, 20, 25, 0.14);
+}
+/* Hover enhancement (sheen x1.3, ring x1.5) relative to STRONG base values;
+   the light-strong sheen clamps at alpha 1. Blur layer untouched. */
+html[data-adsdim-scheme="glass"][data-adsdim-contrast="strong"] article[data-adsdim-tier="organic"].adsdim-in:hover::before {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.143), rgba(255, 255, 255, 0.039) 45%, rgba(255, 255, 255, 0.104));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.21),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 8px 28px rgba(0, 0, 0, 0.6);
+}
+html[data-adsdim-theme="light"][data-adsdim-scheme="glass"][data-adsdim-contrast="strong"] article[data-adsdim-tier="organic"].adsdim-in:hover::before {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.728));
+  box-shadow:
+    inset 0 0 0 1px rgba(15, 20, 25, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     0 8px 24px rgba(15, 20, 25, 0.14);
 }

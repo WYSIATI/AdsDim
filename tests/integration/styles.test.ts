@@ -64,6 +64,27 @@ describe('buildStylesheet', () => {
     expect(sheenBlock).not.toContain('backdrop-filter');
   });
 
+  it('strengthens the organic glass on hover: sheen x1.3, ring x1.5, 120ms', () => {
+    // Hovering a genuine post must ENHANCE the glass, never remove it.
+    expect(css).toMatch(/article\[data-adsdim-tier="organic"\]\.adsdim-in:hover::before/);
+    // Sheen gradients x1.3 — dark normal / dark strong / light normal /
+    // light strong (clamped at alpha 1).
+    expect(css).toContain(
+      'rgba(255, 255, 255, 0.091), rgba(255, 255, 255, 0.026) 45%, rgba(255, 255, 255, 0.065)',
+    );
+    expect(css).toContain(
+      'rgba(255, 255, 255, 0.143), rgba(255, 255, 255, 0.039) 45%, rgba(255, 255, 255, 0.104)',
+    );
+    expect(css).toContain('rgba(255, 255, 255, 0.845), rgba(255, 255, 255, 0.455)');
+    expect(css).toContain('rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.728)');
+    // Border ring x1.5 — dark 0.14 -> 0.21, light 0.10 -> 0.15.
+    expect(css).toContain('inset 0 0 0 1px rgba(255, 255, 255, 0.21)');
+    expect(css).toContain('inset 0 0 0 1px rgba(15, 20, 25, 0.15)');
+    // 120ms ease both ways, surviving the strong-contrast duration override.
+    const enhanceTransitions = css.match(/background 120ms ease, box-shadow 120ms ease/g);
+    expect(enhanceTransitions?.length).toBeGreaterThanOrEqual(2);
+  });
+
   it('gates the glass blur during scrolling via opacity, never backdrop-filter', () => {
     // Toggling backdrop-filter via a rule change can leave Chrome's
     // compositor with a stale, unblurred backdrop (computed style lies).

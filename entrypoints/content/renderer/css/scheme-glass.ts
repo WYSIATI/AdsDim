@@ -28,7 +28,7 @@ html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"]::before {
     0 4px 16px rgba(0, 0, 0, 0.45);
   opacity: 0;
   transform: scale(0.98);
-  transition: opacity 400ms ease, transform 400ms ease;
+  transition: opacity 400ms ease, transform 400ms ease, background 120ms ease, box-shadow 120ms ease;
 }
 html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"]::after {
   content: "";
@@ -59,6 +59,24 @@ html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in::
 }
 html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in::after {
   opacity: 1;
+}
+/* Hovering a genuine post ENHANCES the glass, never removes it: sheen
+   gradient alphas x1.3 and border ring alpha x1.5 over this contrast
+   level's base values; the blur layer is untouched. 120ms ease both ways
+   (see the base ::before transition). */
+html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in:hover::before {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.091), rgba(255, 255, 255, 0.026) 45%, rgba(255, 255, 255, 0.065));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.21),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 4px 16px rgba(0, 0, 0, 0.45);
+}
+html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in:hover::before {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.845), rgba(255, 255, 255, 0.455));
+  box-shadow:
+    inset 0 0 0 1px rgba(15, 20, 25, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 4px 14px rgba(15, 20, 25, 0.08);
 }
 /* Scroll-idle gate (P0: backdrop-filter is too expensive mid-scroll).
    While <html> carries adsdim-scrolling the blur layer hides instantly;
