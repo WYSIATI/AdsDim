@@ -36,6 +36,21 @@ describe('buildStylesheet', () => {
     expect(css).toContain('box-shadow: -10px 0 22px -6px rgba(29, 155, 240, 0.5)'); // glow strong
   });
 
+  it('caps the pill line box so injecting it never shifts layout', () => {
+    // Regression: without line-height: 1 + padding-cancelling negative
+    // vertical margins, the pill inflates X's 20px name row (~6px per tweet).
+    const pillBlock = css.match(/\n\.adsdim-pill \{[^}]*\}/)?.[0];
+    expect(pillBlock).toBeDefined();
+    expect(pillBlock).toContain('line-height: 1;');
+    expect(pillBlock).toContain('margin: -2px 0 -2px 6px;');
+
+    const strongPillBlock = css.match(
+      /html\[data-adsdim-contrast="strong"\] \.adsdim-pill \{[^}]*\}/,
+    )?.[0];
+    expect(strongPillBlock).toBeDefined();
+    expect(strongPillBlock).toContain('margin: -3px 0 -3px 6px;');
+  });
+
   it('includes scroll-idle backdrop-filter gating for the glass scheme', () => {
     expect(css).toContain('html.adsdim-scrolling');
     expect(css).toContain('backdrop-filter: none !important');

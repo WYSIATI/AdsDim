@@ -16,10 +16,16 @@ article[data-adsdim-tier] > div {
 .adsdim-pill {
   display: inline-block;
   font-size: 11px;
+  /* Zero layout shift: line-height 1 stops the pill from inheriting X's
+     20px row line-height, and the negative vertical margins cancel the
+     padding so the pill's line-box contribution is only its 11px text box.
+     The padded background still paints full-size; it just can't grow the
+     name row (regression caught by e2e/tests/layout-shift.spec.ts). */
+  line-height: 1;
   padding: 2px 6px;
+  margin: -2px 0 -2px 6px;
   border-radius: 9999px;
   font-weight: 600;
-  margin-left: 6px;
   vertical-align: middle;
   white-space: nowrap;
 }

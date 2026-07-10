@@ -16,6 +16,8 @@ html[data-adsdim-contrast="strong"] article[data-adsdim-tier] > div {
 html[data-adsdim-contrast="strong"] .adsdim-pill {
   font-size: 12px;
   padding: 3px 8px;
+  /* Cancel the bigger padding too — see the zero-layout-shift note in base.ts. */
+  margin: -3px 0 -3px 6px;
 }
 html[data-adsdim-theme="dark"][data-adsdim-contrast="strong"] .adsdim-pill--hard { color: #FF6B75; }
 html[data-adsdim-theme="dark"][data-adsdim-contrast="strong"] .adsdim-pill--soft { color: #FFC24D; }
