@@ -7,9 +7,10 @@ import {
 } from '../../src/storage/schema';
 
 describe('settings schema', () => {
-  it('defaults to enabled, glass scheme, strong contrast, all tiers on', () => {
+  it('defaults to enabled, English UI, glass scheme, strong contrast, all tiers on', () => {
     expect(DEFAULT_SETTINGS).toEqual({
       enabled: true,
+      locale: 'en',
       scheme: 'glass',
       contrast: 'strong',
       tiers: { hard: true, soft: true, potential: true },
@@ -36,6 +37,13 @@ describe('settings schema', () => {
   it('rejects invalid enum values by falling back to defaults', () => {
     expect(parseSettings({ scheme: 'neon' })).toEqual(DEFAULT_SETTINGS);
     expect(parseSettings({ contrast: 'extreme' })).toEqual(DEFAULT_SETTINGS);
+    expect(parseSettings({ locale: 'fr' })).toEqual(DEFAULT_SETTINGS);
+    expect(parseSettings({ locale: 'zh-CN' })).toEqual(DEFAULT_SETTINGS);
+  });
+
+  it('accepts every supported locale', () => {
+    expect(parseSettings({ locale: 'en' }).locale).toBe('en');
+    expect(parseSettings({ locale: 'zh' }).locale).toBe('zh');
   });
 
   it('rejects out-of-range sensitivity', () => {
@@ -46,6 +54,7 @@ describe('settings schema', () => {
   it('accepts a full valid settings object', () => {
     const input = {
       enabled: false,
+      locale: 'zh',
       scheme: 'glow',
       contrast: 'normal',
       tiers: { hard: true, soft: false, potential: false },

@@ -8,11 +8,12 @@ const TIERS: readonly AdTier[] = ['hard', 'soft', 'potential'];
 
 export function App(): ReactElement {
   const { settings, update } = useSettings();
-  const t = getMessages(navigator.language);
 
   if (settings === null) {
     return <main className="popup popup--loading" aria-busy="true" />;
   }
+
+  const t = getMessages(settings.locale);
 
   return (
     <main className="popup">
@@ -26,6 +27,17 @@ export function App(): ReactElement {
         label={t.popup.enabled}
         checked={settings.enabled}
         onChange={(enabled) => update({ enabled })}
+      />
+
+      {/* Bilingual label so the control is findable in any current locale. */}
+      <Segmented
+        label="Language / 语言"
+        value={settings.locale}
+        options={[
+          { value: 'en', label: 'English' },
+          { value: 'zh', label: '中文' },
+        ]}
+        onChange={(locale) => update({ locale })}
       />
 
       <fieldset disabled={!settings.enabled} className="controls">

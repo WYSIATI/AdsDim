@@ -51,6 +51,22 @@ test('scheme and contrast changes flip root attributes and computed styles live'
   await expect.poll(() => styleOf(hard, 'filter')).toBe('saturate(0.35) brightness(0.72)');
 });
 
+test('locale change swaps pill labels live', async ({ page, timelineUrl, setSettings }) => {
+  await page.goto(timelineUrl());
+  await waitForMarks(page);
+
+  const pill = hardArticle(page).locator('.adsdim-pill');
+
+  // Default locale is English, regardless of the browser language.
+  await expect(pill).toHaveText('Ad');
+
+  await setSettings({ locale: 'zh' });
+  await expect(pill).toHaveText('硬广');
+
+  await setSettings({ locale: 'en' });
+  await expect(pill).toHaveText('Ad');
+});
+
 test('disabling the extension clears attributes and pills', async ({
   page,
   timelineUrl,

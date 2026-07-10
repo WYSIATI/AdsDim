@@ -1,20 +1,30 @@
 import { describe, expect, it } from 'vitest';
-import { getMessages } from '../../src/i18n';
+import { getMessages, SUPPORTED_LOCALES } from '../../src/i18n';
 import { en } from '../../src/i18n/en';
 import { zh } from '../../src/i18n/zh';
 
 describe('getMessages', () => {
   it.each([
-    ['zh', zh],
-    ['zh-CN', zh],
-    ['zh-Hant-TW', zh],
-    ['ZH-TW', zh],
     ['en', en],
-    ['en-US', en],
-    ['ja-JP', en],
-    [undefined, en],
-  ])('locale %j -> expected bundle', (locale, expected) => {
+    ['zh', zh],
+  ])('explicit locale %j -> its bundle', (locale, expected) => {
     expect(getMessages(locale)).toBe(expected);
+  });
+
+  it.each([
+    // Unknown or malformed values fall back to English, never auto-detect.
+    ['zh-CN', en],
+    ['ja-JP', en],
+    ['fr', en],
+    ['', en],
+    [undefined, en],
+  ])('unsupported value %j -> English fallback', (locale, expected) => {
+    expect(getMessages(locale)).toBe(expected);
+  });
+
+  it('lists every supported locale exactly once', () => {
+    expect(SUPPORTED_LOCALES).toEqual(['en', 'zh']);
+    expect(new Set(SUPPORTED_LOCALES).size).toBe(SUPPORTED_LOCALES.length);
   });
 
   it('zh pill labels match the design mockup', () => {

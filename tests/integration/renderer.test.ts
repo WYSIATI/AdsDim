@@ -9,8 +9,9 @@ import {
   THEME_ATTR,
   TIER_ATTR,
 } from '../../entrypoints/content/renderer/mark-renderer';
+import { getMessages } from '../../src/i18n';
 import { zh } from '../../src/i18n/zh';
-import { DEFAULT_SETTINGS } from '../../src/storage/schema';
+import { DEFAULT_SETTINGS, parseSettings } from '../../src/storage/schema';
 import { fixtureArticle, loadFixture } from '../helpers/fixture';
 
 const labels = zh.pills;
@@ -64,6 +65,21 @@ describe('renderMark', () => {
     expect(pills).toHaveLength(1);
     expect(pills[0]?.textContent).toBe('疑似');
     expect(article.getAttribute(TIER_ATTR)).toBe('potential');
+  });
+
+  it('pill text follows the explicit locale setting, English by default', () => {
+    const article = fixtureArticle(doc, 'promoted-en');
+
+    // Default settings carry locale 'en': pills render in English.
+    renderMark(article, 'hard', getMessages(DEFAULT_SETTINGS.locale).pills);
+    expect(article.querySelector(`.${PILL_CLASS}`)?.textContent).toBe('Ad');
+
+    // Switching the setting to zh (clear + re-render, as the content
+    // script does on settings change) swaps the pill text live.
+    const zhSettings = parseSettings({ locale: 'zh' });
+    clearMarks(doc);
+    renderMark(article, 'hard', getMessages(zhSettings.locale).pills);
+    expect(article.querySelector(`.${PILL_CLASS}`)?.textContent).toBe('硬广');
   });
 
   it('appends the pill to the article when the name row is missing', () => {

@@ -30,7 +30,7 @@ async function bootstrap(): Promise<void> {
   let settings: Settings = await store.load();
 
   const cache = new LruCache<string, Classification>(CACHE_CAPACITY);
-  const messages = getMessages(navigator.language);
+  let messages = getMessages(settings.locale);
   const viewport = createViewportObserver(window);
 
   injectStyles(document);
@@ -55,6 +55,7 @@ async function bootstrap(): Promise<void> {
 
   watchSettings((next) => {
     settings = next;
+    messages = getMessages(settings.locale);
     // Sensitivity/keywords/whitelist affect classification: recompute all.
     cache.clear();
     clearMarks(document);

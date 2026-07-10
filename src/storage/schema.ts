@@ -1,11 +1,14 @@
 import { z } from 'zod';
+import { SUPPORTED_LOCALES } from '../i18n';
 
 /**
  * Settings schema. Defaults define the out-of-the-box experience:
- * enabled, glass scheme, strong contrast, all tiers marked.
+ * enabled, English UI, glass scheme, strong contrast, all tiers marked.
  */
 export const settingsSchema = z.object({
   enabled: z.boolean().default(true),
+  /** UI language. An explicit user choice — never auto-detected. */
+  locale: z.enum(SUPPORTED_LOCALES).default('en'),
   scheme: z.enum(['glass', 'glow', 'theater']).default('glass'),
   contrast: z.enum(['normal', 'strong']).default('strong'),
   tiers: z
