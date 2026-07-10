@@ -1,5 +1,5 @@
 /**
- * Scheme "theater" (剧场模式 / Theater) — normal contrast.
+ * Scheme "theater" (Theater) — normal contrast.
  * Ads dim like house lights going down; genuine posts stay untouched.
  * Values ported verbatim from design/preview-v2-inverted.html (scheme "c").
  */

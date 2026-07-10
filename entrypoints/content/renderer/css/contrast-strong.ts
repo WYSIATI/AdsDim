@@ -21,7 +21,7 @@ html[data-adsdim-theme="dark"][data-adsdim-contrast="strong"] .adsdim-pill--hard
 html[data-adsdim-theme="dark"][data-adsdim-contrast="strong"] .adsdim-pill--soft { color: #FFC24D; }
 html[data-adsdim-theme="dark"][data-adsdim-contrast="strong"] .adsdim-pill--potential { color: #A8B4C0; }
 
-/* ----- Strong · glass 玻璃聚焦 ----- */
+/* ----- Strong · glass (Glass Focus) ----- */
 html[data-adsdim-scheme="glass"][data-adsdim-contrast="strong"] article[data-adsdim-tier="organic"]::before {
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.03) 45%, rgba(255, 255, 255, 0.08));
   box-shadow:
@@ -55,7 +55,7 @@ html[data-adsdim-scheme="glass"][data-adsdim-contrast="strong"] article[data-ads
   filter: saturate(0.6);
 }
 
-/* ----- Strong · glow 光晕通道 ----- */
+/* ----- Strong · glow (Glow Lane) ----- */
 html[data-adsdim-scheme="glow"][data-adsdim-contrast="strong"] article[data-adsdim-tier="organic"]::before {
   background: linear-gradient(135deg, rgba(29, 155, 240, 0.8), rgba(0, 186, 124, 0.68));
 }
@@ -82,7 +82,7 @@ html[data-adsdim-scheme="glow"][data-adsdim-contrast="strong"] article[data-adsd
   outline-offset: -4px;
 }
 
-/* ----- Strong · theater 剧场模式 ----- */
+/* ----- Strong · theater (Theater) ----- */
 html[data-adsdim-scheme="theater"][data-adsdim-contrast="strong"] article[data-adsdim-tier="organic"].adsdim-in {
   filter: brightness(1.06) saturate(1.12);
 }

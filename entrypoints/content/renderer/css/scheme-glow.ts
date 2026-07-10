@@ -1,5 +1,5 @@
 /**
- * Scheme "glow" (光晕通道 / Glow Lane) — normal contrast.
+ * Scheme "glow" (Glow Lane) — normal contrast.
  * Genuine posts earn a gradient ring and left glow; ads fade toward gray.
  * Values ported verbatim from design/preview-v2-inverted.html (scheme "b").
  */

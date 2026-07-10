@@ -1,5 +1,5 @@
 /**
- * Scheme "glass" (玻璃聚焦 / Glass Focus) — normal contrast.
+ * Scheme "glass" (Glass Focus) — normal contrast.
  * Genuine posts float as frosted-glass cards; ads recede, desaturated.
  * Values ported verbatim from design/preview-v2-inverted.html (scheme "a").
  */
