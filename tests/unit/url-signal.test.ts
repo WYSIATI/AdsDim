@@ -19,6 +19,13 @@ describe('urlSignal', () => {
     expect(urlSignal(urls).score).toBeCloseTo(expectedScore, 5);
   });
 
+  it('scores strong when the t.co href hides a storefront display text', () => {
+    // X routes hrefs through t.co; the display text keeps the real domain.
+    const result = urlSignal(['https://t.co/xxx', 'amzn.to/yyy']);
+    expect(result.score).toBe(1);
+    expect(result.matches).toEqual(['amzn.to/yyy']);
+  });
+
   it('lists matched urls and is case-insensitive', () => {
     const result = urlSignal(['AMZN.TO/deal', 'https://ok.example']);
     expect(result.id).toBe('url');

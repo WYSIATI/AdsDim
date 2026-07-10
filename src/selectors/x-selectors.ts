@@ -15,6 +15,12 @@ export const X_SELECTORS = {
   placementTracking: '[data-testid="placementTracking"]',
   /** Permalink anchors that carry the tweet id. */
   statusLink: 'a[href*="/status/"]',
+  /**
+   * Candidate quote-repost card container. Only a match that contains its
+   * own tweetText is a real quoted tweet; link-preview cards also use
+   * role="link" but carry no tweet text.
+   */
+  quotedTweet: 'div[role="link"]',
 } as const;
 
 export type XSelectorKey = keyof typeof X_SELECTORS;

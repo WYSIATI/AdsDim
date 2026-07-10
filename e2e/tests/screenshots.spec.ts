@@ -7,8 +7,8 @@ import { expect, test } from '../fixtures';
 const SCREENSHOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../design/screenshots');
 
 const settle = async (page: Page): Promise<void> => {
-  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(7);
-  await expect(page.locator('article.adsdim-in')).toHaveCount(7);
+  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(8);
+  await expect(page.locator('article.adsdim-in')).toHaveCount(8);
   // Let entrance transitions (200-400ms) finish before capturing.
   await page.waitForTimeout(800);
 };

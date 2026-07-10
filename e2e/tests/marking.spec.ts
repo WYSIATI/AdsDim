@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect, test } from '../fixtures';
 
-const ALL_ARTICLES = 7;
+const ALL_ARTICLES = 8;
 
 const article = (page: Page, fixtureId: string): Locator =>
   page.locator(`article[data-fixture-id="${fixtureId}"]`);
@@ -60,8 +60,10 @@ test.describe('tier marking on the timeline', () => {
     await waitForMarks(page);
 
     // The organic tier is marked explicitly: the glass scheme keys its
-    // frosted overlay off data-adsdim-tier="organic".
-    for (const fixtureId of ['organic-en', 'organic-zh-mentions-ad']) {
+    // frosted overlay off data-adsdim-tier="organic". The quote repost
+    // must stay organic even though the quoted card carries an affiliate
+    // link and promo-code text.
+    for (const fixtureId of ['organic-en', 'organic-zh-mentions-ad', 'quote-organic']) {
       const post = article(page, fixtureId);
       await expect(post).toHaveAttribute('data-adsdim-tier', 'organic');
       await expect(post.locator('.adsdim-pill')).toHaveCount(0);

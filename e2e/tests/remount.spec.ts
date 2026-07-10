@@ -7,7 +7,7 @@ import { expect, test } from '../fixtures';
  */
 test('remounted articles are re-marked with a single pill', async ({ page, timelineUrl }) => {
   await page.goto(timelineUrl());
-  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(7);
+  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(8);
 
   const promoted = page.locator('article[data-fixture-id="promoted-en"]');
   await expect(promoted.locator('.adsdim-pill')).toHaveCount(1);
@@ -35,5 +35,5 @@ test('remounted articles are re-marked with a single pill', async ({ page, timel
   await expect(promoted.locator('.adsdim-pill')).toHaveText('Ad');
 
   // The full timeline is intact and fully re-marked.
-  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(7);
+  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(8);
 });

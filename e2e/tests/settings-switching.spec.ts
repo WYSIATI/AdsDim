@@ -7,8 +7,8 @@ const styleOf = (locator: Locator, property: string): Promise<string> =>
   locator.evaluate((el, prop) => getComputedStyle(el).getPropertyValue(prop).trim(), property);
 
 const waitForMarks = async (page: Page): Promise<void> => {
-  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(7);
-  await expect(page.locator('article.adsdim-in')).toHaveCount(7);
+  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(8);
+  await expect(page.locator('article.adsdim-in')).toHaveCount(8);
 };
 
 test('scheme and contrast changes flip root attributes and computed styles live', async ({

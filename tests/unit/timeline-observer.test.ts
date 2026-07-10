@@ -16,7 +16,7 @@ describe('createTimelineObserver', () => {
 
     observer.start();
     expect(onArticles).toHaveBeenCalledTimes(1);
-    expect(onArticles.mock.calls[0]?.[0]).toHaveLength(7);
+    expect(onArticles.mock.calls[0]?.[0]).toHaveLength(8);
     observer.stop();
   });
 

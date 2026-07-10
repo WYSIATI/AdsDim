@@ -23,6 +23,42 @@ describe('extractTweetData', () => {
     expect(data.urls).toContain('amzn.to/3xYz?tag=stylekol-20');
   });
 
+  describe('quote reposts', () => {
+    it('takes text from the outer tweet, not the quoted one', () => {
+      const data = extractTweetData(fixtureArticle(doc, 'quote-organic'));
+      expect(data.text).toBe('这个观点有意思');
+      expect(data.text).not.toContain('优惠码');
+    });
+
+    it('does not inherit urls from the quoted tweet', () => {
+      const data = extractTweetData(fixtureArticle(doc, 'quote-organic'));
+      expect(data.urls).not.toContain('https://t.co/qqq111');
+      expect(data.urls.some((url) => url.includes('amzn.to'))).toBe(false);
+    });
+
+    it('keeps the outer author, not the quoted one', () => {
+      const data = extractTweetData(fixtureArticle(doc, 'quote-organic'));
+      expect(data.authorHandle).toBe('@thinker');
+      expect(data.id).toBe('tweet:1008');
+    });
+  });
+
+  it('only collects anchor text that looks like a domain', () => {
+    document.body.innerHTML = `
+      <article data-testid="tweet">
+        <div data-testid="tweetText">
+          <span>Great writeup on</span>
+          <a href="https://t.co/aaa111">Node.js</a>
+          <a href="https://t.co/bbb222">amzn.to/3xYz</a>
+        </div>
+      </article>`;
+    const data = extractTweetData(document.querySelector('article') as Element);
+    expect(data.urls).toContain('https://t.co/aaa111');
+    expect(data.urls).toContain('https://t.co/bbb222');
+    expect(data.urls).toContain('amzn.to/3xYz');
+    expect(data.urls).not.toContain('Node.js');
+  });
+
   it('returns a frozen (immutable) snapshot', () => {
     const data = extractTweetData(fixtureArticle(doc, 'organic-en'));
     expect(Object.isFrozen(data)).toBe(true);

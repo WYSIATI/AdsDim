@@ -3,21 +3,45 @@ import type { TweetData } from '../../../src/types';
 import { extractTweetId } from './tweet-id';
 
 /**
+ * Anchor display text is only treated as a URL when it looks domain-like
+ * ("amzn.to/3xYz", "example.com"). Matched case-sensitively against the
+ * trimmed text: X lowercases display URLs, while prose brand names that
+ * merely contain a dot ("Node.js") keep their casing and are rejected.
+ */
+const DOMAIN_LIKE_TEXT = /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$)/;
+
+/**
  * Extracts an immutable TweetData snapshot from a tweet <article>.
+ * Content nested in a quote-repost card is excluded: the quoted tweet's
+ * text and links belong to the quoted author, not the outer post.
  * Pure DOM reads only; never mutates the page.
  */
 export function extractTweetData(article: Element): TweetData {
+  const quotes = findQuoteContainers(article);
   return Object.freeze({
     id: extractTweetId(article),
-    text: extractText(article),
+    text: extractText(article, quotes),
     authorName: extractAuthorName(article),
     authorHandle: extractAuthorHandle(article),
-    urls: extractUrls(article),
+    urls: extractUrls(article, quotes),
   });
 }
 
-function extractText(article: Element): string {
-  const textEl = article.querySelector(X_SELECTORS.tweetText);
+/** Quote-repost cards: role="link" containers with their own tweet text. */
+function findQuoteContainers(article: Element): readonly Element[] {
+  return [...article.querySelectorAll(X_SELECTORS.quotedTweet)].filter(
+    (candidate) => candidate.querySelector(X_SELECTORS.tweetText) !== null,
+  );
+}
+
+const isInsideAny = (element: Element, containers: readonly Element[]): boolean =>
+  containers.some((container) => container.contains(element));
+
+/** The outer tweet's own text: the first tweetText not inside a quote card. */
+function extractText(article: Element, quotes: readonly Element[]): string {
+  const textEl = [...article.querySelectorAll(X_SELECTORS.tweetText)].find(
+    (el) => !isInsideAny(el, quotes),
+  );
   return (textEl?.textContent ?? '').trim();
 }
 
@@ -44,17 +68,23 @@ function extractAuthorName(article: Element): string | null {
 }
 
 /**
- * Collects both href attributes and visible link texts. X routes hrefs
- * through t.co, while the display text keeps the real domain — both matter
- * for URL heuristics.
+ * Collects both href attributes and domain-like visible link texts from the
+ * outer tweet. X routes hrefs through t.co, while the display text keeps the
+ * real domain — both matter for URL heuristics. Anchors inside a quoted
+ * tweet are skipped entirely.
  */
-function extractUrls(article: Element): readonly string[] {
-  const urls: string[] = [];
-  for (const anchor of article.querySelectorAll<HTMLAnchorElement>('a[href]')) {
+function extractUrls(article: Element, quotes: readonly Element[]): readonly string[] {
+  const anchors = [...article.querySelectorAll<HTMLAnchorElement>('a[href]')].filter(
+    (anchor) => !isInsideAny(anchor, quotes),
+  );
+
+  const urls = anchors.flatMap((anchor) => {
     const href = anchor.getAttribute('href');
-    if (href) urls.push(href);
     const text = (anchor.textContent ?? '').trim();
-    if (text.includes('.') && !text.startsWith('@')) urls.push(text);
-  }
+    return [
+      ...(href ? [href] : []),
+      ...(DOMAIN_LIKE_TEXT.test(text) ? [text] : []),
+    ];
+  });
   return Object.freeze(urls);
 }

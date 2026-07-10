@@ -25,6 +25,7 @@ describe('classifyTweet pipeline (fixture timeline)', () => {
     ['potential-en', 'potential'],
     ['organic-zh-mentions-ad', null],
     ['promoted-placement', 'hard'],
+    ['quote-organic', null],
   ] as const)('%s -> tier %s', (fixtureId, expectedTier) => {
     const { classification } = classify(fixtureId);
     expect(classification.tier).toBe(expectedTier);

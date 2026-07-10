@@ -102,4 +102,30 @@
       </div>
     </div>
   </article>
+
+  <!-- 8. Quote repost: organic commentary quoting a link-bearing post.
+       The quoted card is a div[role="link"] with its own User-Name and
+       tweetText; its affiliate link must NOT leak onto the outer tweet. -->
+  <article role="article" data-testid="tweet" data-fixture-id="quote-organic">
+    <div>
+      <div data-testid="User-Name">
+        <span>思考者</span>
+        <span>@thinker</span>
+        <a href="/thinker/status/1008"><time datetime="2026-07-10T11:20:00Z">2m</time></a>
+      </div>
+      <div data-testid="tweetText">
+        <span>这个观点有意思</span>
+      </div>
+      <div role="link" tabindex="0">
+        <div data-testid="User-Name">
+          <span>Deal Hunter</span>
+          <span>@dealhunter</span>
+        </div>
+        <div data-testid="tweetText">
+          <span>Best gadget of the year! 用我的优惠码 HUNT20</span>
+          <a href="https://t.co/qqq111">amzn.to/3abc?tag=hunter-20</a>
+        </div>
+      </div>
+    </div>
+  </article>
 </div>

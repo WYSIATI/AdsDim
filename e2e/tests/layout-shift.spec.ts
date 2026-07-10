@@ -40,8 +40,8 @@ test('marking causes zero layout shift on any article', async ({ page, timelineU
   });
 
   await page.goto(timelineUrl());
-  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(7);
-  await expect(page.locator('article.adsdim-in')).toHaveCount(7);
+  await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(8);
+  await expect(page.locator('article.adsdim-in')).toHaveCount(8);
   // Let the 200ms strong-contrast transitions fully settle.
   await page.waitForTimeout(700);
 
