@@ -8,7 +8,7 @@ const article = (page: Page, fixtureId: string): Locator =>
 
 const waitForMarks = async (page: Page): Promise<void> => {
   await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(ALL_ARTICLES);
-  await expect(page.locator('article.adsdim-in')).toHaveCount(ALL_ARTICLES);
+  await expect(page.locator('article[data-adsdim-in]')).toHaveCount(ALL_ARTICLES);
 };
 
 /** Computed style of the article itself (filter/opacity live on it). */

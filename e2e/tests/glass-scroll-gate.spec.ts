@@ -46,7 +46,7 @@ test('glass blur is actually rendering again after hover + micro-scroll bursts',
   await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(8);
   const organic = page.locator('article[data-fixture-id="organic-en"]');
   await expect(organic).toHaveAttribute('data-adsdim-tier', 'organic');
-  await expect(organic).toHaveClass(/adsdim-in/);
+  await expect(organic).toHaveAttribute('data-adsdim-in', '1');
 
   // Let the 400ms entrance transitions fully settle, then park the pointer
   // so the reference and final screenshots share identical hover state.

@@ -21,8 +21,9 @@ test('remounted articles are re-marked with a single pill', async ({ page, timel
     // Clone stripped of every AdsDim trace, exactly like a virtualizer
     // re-render from React state.
     const clone = original.cloneNode(true) as Element;
-    clone.removeAttribute('data-adsdim-tier');
-    clone.classList.remove('adsdim-in');
+    for (const attribute of [...clone.attributes]) {
+      if (attribute.name.startsWith('data-adsdim-')) clone.removeAttribute(attribute.name);
+    }
     for (const pill of clone.querySelectorAll('.adsdim-pill')) pill.remove();
 
     original.remove();

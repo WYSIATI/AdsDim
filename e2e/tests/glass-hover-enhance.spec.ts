@@ -45,7 +45,7 @@ test('hovering an organic post strengthens the glass; unhover restores it', asyn
   await page.goto(timelineUrl());
   await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(8);
   const organic = page.locator('article[data-fixture-id="organic-en"]');
-  await expect(organic).toHaveClass(/adsdim-in/);
+  await expect(organic).toHaveAttribute('data-adsdim-in', '1');
   await parkPointer(page);
 
   // Base: strong-contrast dark glass.

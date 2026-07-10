@@ -12,7 +12,7 @@ const opacityOf = (locator: Locator): Promise<string> =>
 
 const waitForMarks = async (page: Page): Promise<void> => {
   await expect(page.locator('article[data-adsdim-tier]')).toHaveCount(8);
-  await expect(page.locator('article.adsdim-in')).toHaveCount(8);
+  await expect(page.locator('article[data-adsdim-in]')).toHaveCount(8);
 };
 
 /** Parks the pointer on the page background, away from every article. */

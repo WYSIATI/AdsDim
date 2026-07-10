@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { KeyboardReveal } from '../../entrypoints/content/renderer/keyboard-reveal';
 import {
   createKeyboardReveal,
-  KB_REVEAL_CLASS,
+  KB_REVEAL_ATTR,
 } from '../../entrypoints/content/renderer/keyboard-reveal';
 
 const pressKey = (key: string): void => {
@@ -23,7 +23,7 @@ describe('createKeyboardReveal', () => {
   let reveal: KeyboardReveal;
 
   const ad = (): HTMLElement => byId('ad');
-  const hasReveal = (): boolean => ad().classList.contains(KB_REVEAL_CLASS);
+  const hasReveal = (): boolean => ad().hasAttribute(KB_REVEAL_ATTR);
 
   beforeEach(() => {
     document.body.innerHTML = `
@@ -91,7 +91,7 @@ describe('createKeyboardReveal', () => {
     pressKey('Tab');
     byId('other').focus();
     expect(hasReveal()).toBe(false);
-    expect(byId('ad2').classList.contains(KB_REVEAL_CLASS)).toBe(true);
+    expect(byId('ad2').hasAttribute(KB_REVEAL_ATTR)).toBe(true);
   });
 
   it('mousedown disarms keyboard modality', () => {

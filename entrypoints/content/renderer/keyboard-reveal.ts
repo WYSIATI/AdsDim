@@ -1,4 +1,9 @@
-export const KB_REVEAL_CLASS = 'adsdim-kb-reveal';
+/**
+ * Keyboard-reveal marker. A data-* attribute, NOT a class: the tweet
+ * article's className is owned by X's React, which rewrites it wholesale on
+ * any re-render, erasing injected classes. Unknown data-* attributes survive.
+ */
+export const KB_REVEAL_ATTR = 'data-adsdim-kb-reveal';
 
 /** Keys that signal genuine keyboard navigation. */
 const NAV_KEYS: ReadonlySet<string> = new Set([
@@ -26,8 +31,8 @@ export interface KeyboardReveal {
  * or the last input was a key. Since mouse movement never blurs the tweet,
  * a CSS focus reveal latches indefinitely (user-confirmed on x.com).
  *
- * Instead, this module reveals via the `adsdim-kb-reveal` class, and only
- * for focus that follows a real navigation key:
+ * Instead, this module reveals via the `data-adsdim-kb-reveal` attribute,
+ * and only for focus that follows a real navigation key:
  *
  * - keydown on Tab/arrows arms keyboard modality;
  * - any pointer activity (mousedown/mousemove/wheel) disarms it AND drops an
@@ -42,7 +47,7 @@ export function createKeyboardReveal(win: Window): KeyboardReveal {
   let revealedArticle: Element | undefined;
 
   const removeReveal = (): void => {
-    revealedArticle?.classList.remove(KB_REVEAL_CLASS);
+    revealedArticle?.removeAttribute(KB_REVEAL_ATTR);
     revealedArticle = undefined;
   };
 
@@ -61,7 +66,7 @@ export function createKeyboardReveal(win: Window): KeyboardReveal {
     const article = target instanceof Element ? target.closest(ARTICLE_SELECTOR) : null;
     if (!article || article === revealedArticle) return;
     removeReveal();
-    article.classList.add(KB_REVEAL_CLASS);
+    article.setAttribute(KB_REVEAL_ATTR, '1');
     revealedArticle = article;
   };
 

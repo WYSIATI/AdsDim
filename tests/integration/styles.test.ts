@@ -66,7 +66,7 @@ describe('buildStylesheet', () => {
 
   it('strengthens the organic glass on hover: sheen x1.3, ring x1.5, 120ms', () => {
     // Hovering a genuine post must ENHANCE the glass, never remove it.
-    expect(css).toMatch(/article\[data-adsdim-tier="organic"\]\.adsdim-in:hover::before/);
+    expect(css).toMatch(/article\[data-adsdim-tier="organic"\]\[data-adsdim-in\]:hover::before/);
     // Sheen gradients x1.3 — dark normal / dark strong / light normal /
     // light strong (clamped at alpha 1).
     expect(css).toContain(
@@ -98,12 +98,24 @@ describe('buildStylesheet', () => {
   });
 
   it('includes CSS-only hover reveal for dimmed ads', () => {
-    expect(css).toMatch(/article\[data-adsdim-tier="hard"\]\.adsdim-in:is\(:hover/);
+    expect(css).toMatch(/article\[data-adsdim-tier="hard"\]\[data-adsdim-in\]:is\(:hover/);
     expect(css).toContain('filter: none !important');
   });
 
-  it('reveals dimmed ads for keyboard focus via the JS-managed class', () => {
-    expect(css).toContain('.adsdim-kb-reveal');
+  it('reveals dimmed ads for keyboard focus via the JS-managed attribute', () => {
+    expect(css).toContain('[data-adsdim-kb-reveal]');
+  });
+
+  it('never keys per-article state on classes — React rewrites className', () => {
+    // X's React owns the tweet article's className and rewrites it wholesale
+    // on any re-render (hover, like counts, ...), silently erasing injected
+    // classes with NO childList mutation. All per-article state must live in
+    // data-* attributes, which React leaves alone. Classes remain allowed on
+    // elements we own outright (.adsdim-pill) and on <html>
+    // (html.adsdim-scrolling), which React never touches.
+    expect(css).not.toContain('.adsdim-in');
+    expect(css).not.toContain('.adsdim-kb-reveal');
+    expect(css).toContain('article[data-adsdim-tier="organic"][data-adsdim-in]');
   });
 
   it('never keys the reveal on any focus pseudo-class', () => {
@@ -118,7 +130,7 @@ describe('buildStylesheet', () => {
 
   it('orders strong-contrast overrides after the normal scheme rules', () => {
     const normalGlassHard = css.indexOf(
-      'article[data-adsdim-tier="hard"].adsdim-in {\n  filter: saturate(0.35)',
+      'article[data-adsdim-tier="hard"][data-adsdim-in] {\n  filter: saturate(0.35)',
     );
     const strongGlassHard = css.indexOf('filter: saturate(0.15) brightness(0.5)');
     expect(normalGlassHard).toBeGreaterThan(-1);

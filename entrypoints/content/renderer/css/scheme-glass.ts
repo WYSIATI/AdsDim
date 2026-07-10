@@ -5,7 +5,7 @@
  *
  * The frosted card is TWO stacked overlay layers:
  * - ::before — sheen gradient + border ring + shadows. Always on while
- *   `.adsdim-in`; the scroll gate never touches it.
+ *   `[data-adsdim-in]`; the scroll gate never touches it.
  * - ::after — blur-only layer beneath the sheen. The scroll gate toggles
  *   ONLY this layer's `opacity` (composited, repaint-safe). It must never
  *   toggle `backdrop-filter` itself: flipping the filter via a rule change
@@ -53,25 +53,25 @@ html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
-html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in::before {
+html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"][data-adsdim-in]::before {
   opacity: 1;
   transform: scale(1);
 }
-html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in::after {
+html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"][data-adsdim-in]::after {
   opacity: 1;
 }
 /* Hovering a genuine post ENHANCES the glass, never removes it: sheen
    gradient alphas x1.3 and border ring alpha x1.5 over this contrast
    level's base values; the blur layer is untouched. 120ms ease both ways
    (see the base ::before transition). */
-html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in:hover::before {
+html[data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"][data-adsdim-in]:hover::before {
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.091), rgba(255, 255, 255, 0.026) 45%, rgba(255, 255, 255, 0.065));
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.21),
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 4px 16px rgba(0, 0, 0, 0.45);
 }
-html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"].adsdim-in:hover::before {
+html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="organic"][data-adsdim-in]:hover::before {
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.845), rgba(255, 255, 255, 0.455));
   box-shadow:
     inset 0 0 0 1px rgba(15, 20, 25, 0.15),
@@ -91,16 +91,16 @@ html[data-adsdim-scheme="glass"] article[data-adsdim-tier="hard"],
 html[data-adsdim-scheme="glass"] article[data-adsdim-tier="soft"] {
   transition: filter 400ms ease;
 }
-html[data-adsdim-scheme="glass"] article[data-adsdim-tier="hard"].adsdim-in {
+html[data-adsdim-scheme="glass"] article[data-adsdim-tier="hard"][data-adsdim-in] {
   filter: saturate(0.35) brightness(0.72);
 }
-html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="hard"].adsdim-in {
+html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="hard"][data-adsdim-in] {
   filter: saturate(0.4) brightness(0.96) contrast(0.92);
 }
-html[data-adsdim-scheme="glass"] article[data-adsdim-tier="soft"].adsdim-in {
+html[data-adsdim-scheme="glass"] article[data-adsdim-tier="soft"][data-adsdim-in] {
   filter: saturate(0.55) brightness(0.82);
 }
-html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="soft"].adsdim-in {
+html[data-adsdim-theme="light"][data-adsdim-scheme="glass"] article[data-adsdim-tier="soft"][data-adsdim-in] {
   filter: saturate(0.6);
 }
 html[data-adsdim-scheme="glass"] .adsdim-pill--hard { color: #F4212E; background: rgba(244, 33, 46, 0.18); }
