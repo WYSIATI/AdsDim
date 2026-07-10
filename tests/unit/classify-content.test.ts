@@ -109,3 +109,20 @@ describe('English soft-ad coverage (2026-07 tuning)', () => {
     expect(verdict('The stadium is sponsored by a bank, shop now has new merch too').tier).toBe(null);
   });
 });
+
+describe('giveaway promotion detection (2026-07)', () => {
+  it('marks a giveaway with entry mechanics', () => {
+    const v = verdict(
+      '🚀 $SPCX x YUBIT $300 Giveaway 🛰 6 winners · $50 Futures Position Coupon each 💰 To enter 👇 Follow @YUBIT_Exchange Repost',
+    );
+    expect(v.tier).toBe('soft');
+  });
+
+  it('marks a Chinese repost-to-win giveaway', () => {
+    expect(verdict('转发+关注,抽奖送新款耳机一台!').tier).toBe('potential');
+  });
+
+  it('ignores merely mentioning a giveaway (no mechanics)', () => {
+    expect(verdict('Thinking about doing a giveaway next month, what should the prize be?').tier).toBe(null);
+  });
+});
