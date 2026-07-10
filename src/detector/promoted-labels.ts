@@ -3,9 +3,8 @@
  * Latin-script labels are stored lowercase and matched case-insensitively.
  */
 const LABELS: readonly string[] = [
-  // English
+  // English — X renders "Ad" or "Promoted", never "Ads".
   'ad',
-  'ads',
   'promoted',
   // Chinese (Simplified / Traditional)
   '广告',
