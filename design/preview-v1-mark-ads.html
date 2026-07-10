@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-Hans" data-theme="dark" data-intensity="bold">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X Ads Detector — UI Preview</title>
+  <style>
+    :root[data-theme="dark"] {
+      --bg-primary: #000;
+      --bg-secondary: #16191a;
+      --text-primary: #e7e9ea;
+      --text-secondary: #71767b;
+      --border: #2f3336;
+
+      --stripe-hard: #FF9C57;
+      --chip-bg-hard: rgba(255, 140, 60, 0.14);
+      --chip-text-hard: #FFB380;
+
+      --stripe-soft: #C9A2F0;
+      --chip-bg-soft: rgba(180, 130, 255, 0.14);
+      --chip-text-soft: #D6BAF5;
+
+      --stripe-maybe: #71767B;
+      --chip-bg-maybe: rgba(139, 152, 165, 0.14);
+      --chip-text-maybe: #8B98A5;
+
+      --tint-hard: rgba(255, 140, 60, 0.12);
+      --tint-soft: rgba(180, 130, 255, 0.10);
+      --tint-maybe: rgba(139, 152, 165, 0.08);
+      --ring-hard: rgba(255, 156, 87, 0.35);
+      --ring-soft: rgba(201, 162, 240, 0.35);
+      --ring-maybe: rgba(113, 118, 123, 0.35);
+    }
+
+    :root[data-theme="light"] {
+      --bg-primary: #fff;
+      --bg-secondary: #f7f9fa;
+      --text-primary: #0f1419;
+      --text-secondary: #536471;
+      --border: #eff3f4;
+
+      --stripe-hard: #C24E00;
+      --chip-bg-hard: #FFF0E3;
+      --chip-text-hard: #8F3A00;
+
+      --stripe-soft: #8250B8;
+      --chip-bg-soft: #F3EDFB;
+      --chip-text-soft: #5F3697;
+
+      --stripe-maybe: #8B98A5;
+      --chip-bg-maybe: #EFF3F4;
+      --chip-text-maybe: #536471;
+
+      --tint-hard: rgba(194, 78, 0, 0.07);
+      --tint-soft: rgba(130, 80, 184, 0.06);
+      --tint-maybe: rgba(83, 100, 113, 0.05);
+      --ring-hard: rgba(194, 78, 0, 0.35);
+      --ring-soft: rgba(130, 80, 184, 0.35);
+      --ring-maybe: rgba(139, 152, 165, 0.35);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, "PingFang SC", "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    .control-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border-radius: 24px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 120ms ease;
+    }
+
+    .btn:hover {
+      background: var(--bg-primary);
+      border-color: var(--text-secondary);
+    }
+
+    .seg-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .seg-group {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .seg-btn {
+      padding: 7px 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 120ms ease;
+    }
+
+    .seg-btn.active {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      font-weight: 600;
+    }
+
+    .legend {
+      position: fixed;
+      top: 70px;
+      right: 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      z-index: 50;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .legend-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .timeline {
+      max-width: 600px;
+      margin: 56px auto 0;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      min-height: 100vh;
+    }
+
+    .post {
+      position: relative;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background-color 400ms ease, box-shadow 400ms ease;
+    }
+
+    .post:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .post.marked {
+      overflow: hidden;
+    }
+
+    /* Bold mode: whole-row tint + inset ring (background/box-shadow only — zero layout shift) */
+    :root[data-intensity="bold"] .post.marked[data-type="hard"] {
+      background-color: var(--tint-hard);
+      box-shadow: inset 0 0 0 1.5px var(--ring-hard);
+    }
+
+    :root[data-intensity="bold"] .post.marked[data-type="soft"] {
+      background-color: var(--tint-soft);
+      box-shadow: inset 0 0 0 1.5px var(--ring-soft);
+    }
+
+    :root[data-intensity="bold"] .post.marked[data-type="maybe"] {
+      background-color: var(--tint-maybe);
+      box-shadow: inset 0 0 0 1.5px var(--ring-maybe);
+    }
+
+    .post-stripe {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      opacity: 0;
+      transform-origin: top;
+      transform: scaleY(0);
+      transition: width 150ms ease;
+    }
+
+    :root[data-intensity="bold"] .post-stripe {
+      width: 8px;
+    }
+
+    .post.marked .post-stripe {
+      animation: stripeIn 250ms ease forwards;
+    }
+
+    @keyframes stripeIn {
+      to {
+        opacity: 1;
+        transform: scaleY(1);
+      }
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .post-meta {
+      flex: 1;
+    }
+
+    .post-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-primary);
+    }
+
+    .post-handle {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .post-time {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .post-menu {
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 18px;
+    }
+
+    .post-chip {
+      position: absolute;
+      top: 12px;
+      right: 40px;
+      padding: 2px 8px;
+      border: 1px solid transparent;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: all 120ms ease;
+      z-index: 10;
+    }
+
+    .post.marked .post-chip {
+      animation: chipIn 250ms ease 100ms forwards;
+    }
+
+    @keyframes chipIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .post-chip:hover {
+      opacity: 1 !important;
+      transform: translateY(-4px) scale(1.05);
+    }
+
+    .post-chip.hard {
+      background: var(--chip-bg-hard);
+      color: var(--chip-text-hard);
+    }
+
+    .post-chip.soft {
+      background: var(--chip-bg-soft);
+      color: var(--chip-text-soft);
+    }
+
+    .post-chip.maybe {
+      background: var(--chip-bg-maybe);
+      color: var(--chip-text-maybe);
+    }
+
+    /* Bold mode: larger chip with subtle tier-colored border */
+    :root[data-intensity="bold"] .post-chip {
+      font-size: 13px;
+      padding: 3px 10px;
+    }
+
+    :root[data-intensity="bold"] .post-chip.hard {
+      border-color: var(--ring-hard);
+    }
+
+    :root[data-intensity="bold"] .post-chip.soft {
+      border-color: var(--ring-soft);
+    }
+
+    :root[data-intensity="bold"] .post-chip.maybe {
+      border-color: var(--ring-maybe);
+    }
+
+    .post-body {
+      font-size: 15px;
+      color: var(--text-primary);
+      line-height: 1.35;
+      margin-bottom: 12px;
+      transition: all 400ms ease;
+    }
+
+    .post.marked .post-body.hard {
+      opacity: 0.55;
+      filter: grayscale(35%);
+    }
+
+    .post.marked .post-body.soft {
+      opacity: 0.75;
+    }
+
+    .post:hover .post-body {
+      opacity: 1;
+      filter: grayscale(0%);
+    }
+
+    .post-footer {
+      display: flex;
+      justify-content: space-around;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 12px;
+    }
+
+    .post-footer-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: color 120ms ease;
+    }
+
+    .post-footer-item:hover {
+      color: #1d9bf0;
+    }
+
+    .tooltip {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 8px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms ease;
+      z-index: 20;
+    }
+
+    .post-chip:hover + .tooltip {
+      opacity: 1;
+    }
+
+    .menu-popover {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-top: 8px;
+      min-width: 200px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+      transition: all 120ms ease;
+      z-index: 30;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .menu-popover.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+
+    .menu-item {
+      padding: 12px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 120ms ease;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .post-collapsed {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 32px;
+      padding: 0 16px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .post-collapsed .post-stripe {
+      display: none;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+      }
+    }
+
+    .post.marking-out {
+      animation: fadeOut 200ms ease forwards;
+    }
+
+    .stripe-dashed {
+      background: repeating-linear-gradient(
+        0deg,
+        var(--stripe-maybe) 0,
+        var(--stripe-maybe) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+    }
+  </style>
+</head>
+<body>
+  <div class="control-bar">
+    <button class="btn" id="replayBtn">▶ 重播标记动画 Replay</button>
+    <button class="btn" id="themeBtn">🌓 切换主题 Theme</button>
+    <div class="seg-control">
+      <span>标记强度 Intensity:</span>
+      <div class="seg-group">
+        <button class="seg-btn" data-intensity="subtle">柔和 Subtle</button>
+        <button class="seg-btn active" data-intensity="bold">醒目 Bold</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #FF9C57;"></div>
+      <span>硬广 Ad</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #C9A2F0;"></div>
+      <span>软广 Soft ad</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #71767B;"></div>
+      <span>疑似 Maybe</span>
+    </div>
+  </div>
+
+  <div class="timeline" id="timeline">
+    <!-- Posts will be generated by JS -->
+  </div>
+
+  <script>
+    const posts = [
+      {
+        id: 1,
+        name: "Tech Opinions",
+        handle: "@techguy_cn",
+        avatar: "T",
+        avatarBg: "#FF6B6B",
+        time: "2h",
+        text: "最近的大模型竞争真是激烈。开源模型在推理性能上已经逼近商用版本，这对整个行业来说是好事。",
+        type: "organic"
+      },
+      {
+        id: 2,
+        name: "VPN Global Official",
+        handle: "@vpn_official_cn",
+        avatar: "V",
+        avatarBg: "#4ECDC4",
+        time: "1h",
+        text: "🚀 立即体验全球最快的VPN服务！24小时客服支持，99.9%正常运行时间保证。限时优惠50%off 🎉 现在就连接到50+个国家！",
+        type: "hard"
+      },
+      {
+        id: 3,
+        name: "Developer News",
+        handle: "@devnews_daily",
+        avatar: "D",
+        avatarBg: "#95E1D3",
+        time: "58m",
+        text: "GitHub Copilot 最新版本支持实时代码审查。这些AI工具确实在改变开发工作流。",
+        type: "organic"
+      },
+      {
+        id: 4,
+        name: "Lifestyle KOL",
+        handle: "@stylekol_2024",
+        avatar: "L",
+        avatarBg: "#FFB6C1",
+        time: "45m",
+        text: "朋友们，最近入手了这个护肤品真的绝了！用了两周皮肤明显变好。我的粉丝们用我的优惠码 STYLE2024 可以打八折哦~ #好物推荐 #护肤必备",
+        type: "soft"
+      },
+      {
+        id: 5,
+        name: "Product Design",
+        handle: "@design_talk",
+        avatar: "P",
+        avatarBg: "#A8E6CF",
+        time: "32m",
+        text: "设计系统的可维护性往往被低估。一个好的设计系统能显著提高整个团队的效率。",
+        type: "organic"
+      },
+      {
+        id: 6,
+        name: "Random User",
+        handle: "@randomuser77",
+        avatar: "R",
+        avatarBg: "#FFD3B6",
+        time: "20m",
+        text: "这个新的笔记应用真的不错，特别是它的同步功能。界面也很清爽，比之前用的好多了。推荐给大家。",
+        type: "maybe"
+      },
+      {
+        id: 7,
+        name: "AI Research",
+        handle: "@airesearch_lab",
+        avatar: "A",
+        avatarBg: "#FFAAA5",
+        time: "10m",
+        text: "我们新发布的研究论文探讨了多模态学习在实时应用中的挑战。欢迎讨论和反馈。",
+        type: "organic"
+      }
+    ];
+
+    const tooltips = {
+      hard: "X 官方推广 · Promoted by X · 置信度高 High confidence",
+      soft: "包含优惠码 + 推广标签 · Contains promo code + hashtag",
+      maybe: "疑似产品推荐 · Possible product endorsement · 置信度低 Low confidence"
+    };
+
+    let currentTheme = "dark";
+    let isAnimating = false;
+
+    function createPost(post) {
+      const isMarked = post.type !== "organic";
+
+      const postEl = document.createElement("div");
+      postEl.className = `post ${isMarked ? "marked" : ""}`;
+      postEl.dataset.postId = post.id;
+      postEl.dataset.type = post.type;
+
+      let chipHtml = "";
+      let stripeClass = "";
+      let bodyClass = "";
+
+      if (isMarked) {
+        if (post.type === "hard") {
+          chipHtml = '<div class="post-chip hard">📢 硬广 · Ad<div class="tooltip">X 官方推广 · Promoted by X · 置信度高 High confidence</div></div>';
+          stripeClass = "";
+          bodyClass = "hard";
+        } else if (post.type === "soft") {
+          chipHtml = '<div class="post-chip soft">🏷️ 软广 · Soft ad<div class="tooltip">包含优惠码 + 推广标签 · Contains promo code + hashtag</div></div>';
+          bodyClass = "soft";
+        } else if (post.type === "maybe") {
+          chipHtml = '<div class="post-chip maybe">🔍 疑似 · Maybe<div class="tooltip">疑似产品推荐 · Possible product endorsement · 置信度低 Low confidence</div></div>';
+          stripeClass = "stripe-dashed";
+        }
+      }
+
+      postEl.innerHTML = `
+        ${isMarked ? `<div class="post-stripe ${stripeClass}"></div>` : ""}
+        <div class="post-header">
+          <div class="avatar" style="background: ${post.avatarBg}; color: white;">${post.avatar}</div>
+          <div class="post-meta">
+            <div>
+              <span class="post-name">${post.name}</span>
+              <span class="post-handle">${post.handle}</span>
+              <span class="post-time">· ${post.time}</span>
+            </div>
+          </div>
+          <div class="post-menu">⋯</div>
+          ${chipHtml}
+        </div>
+        <div class="post-body ${bodyClass}">${post.text}</div>
+        <div class="post-footer">
+          <div class="post-footer-item">💬</div>
+          <div class="post-footer-item">🔁</div>
+          <div class="post-footer-item">❤️</div>
+          <div class="post-footer-item">📊</div>
+        </div>
+        <div class="menu-popover">
+          <div class="menu-item" data-action="unmarked">✕ 不是广告 Not an ad</div>
+          <div class="menu-item" data-action="whitelist">🚫 白名单该作者 Whitelist author</div>
+          <div class="menu-item" data-action="collapse">▁ 折叠此贴 Collapse</div>
+        </div>
+      `;
+
+      return postEl;
+    }
+
+    function renderTimeline() {
+      const timeline = document.getElementById("timeline");
+      timeline.innerHTML = "";
+      posts.forEach((post, idx) => {
+        const postEl = createPost(post);
+        timeline.appendChild(postEl);
+        attachPostListeners(postEl, idx);
+      });
+    }
+
+    function attachPostListeners(postEl, idx) {
+      const chip = postEl.querySelector(".post-chip");
+      const menu = postEl.querySelector(".menu-popover");
+      const menuBtn = postEl.querySelector(".post-menu");
+
+      if (chip) {
+        chip.addEventListener("click", (e) => {
+          e.stopPropagation();
+          menu.classList.toggle("active");
+        });
+      }
+
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        menu.classList.toggle("active");
+      });
+
+      const menuItems = postEl.querySelectorAll(".menu-item");
+      menuItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const action = item.dataset.action;
+          menu.classList.remove("active");
+
+          if (action === "unmarked") {
+            postEl.classList.add("marking-out");
+            setTimeout(() => {
+              postEl.classList.remove("marked");
+              postEl.classList.remove("marking-out");
+            }, 200);
+          } else if (action === "collapse") {
+            const nameSpan = postEl.querySelector(".post-name");
+            const name = nameSpan?.textContent || "Post";
+            const avatar = postEl.querySelector(".avatar");
+            postEl.classList.add("post-collapsed");
+            postEl.innerHTML = `
+              <div class="post-collapsed">
+                <div class="avatar" style="width: 32px; height: 32px; font-size: 14px; background: ${posts[idx].avatarBg}; color: white;">${posts[idx].avatar}</div>
+                <span>${name}</span>
+                <span style="flex: 1;"></span>
+                <span style="font-size: 12px; color: var(--text-secondary);">点击展开 Expand</span>
+              </div>
+            `;
+            postEl.addEventListener("click", () => {
+              location.reload();
+            });
+          }
+        });
+      });
+
+      document.addEventListener("click", () => {
+        menu.classList.remove("active");
+      });
+    }
+
+    function replayAnimation() {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const allPosts = document.querySelectorAll(".post");
+      allPosts.forEach(post => {
+        post.classList.remove("marked");
+      });
+
+      setTimeout(() => {
+        allPosts.forEach((post, idx) => {
+          setTimeout(() => {
+            if (post.dataset.type !== "organic") {
+              post.classList.add("marked");
+            }
+          }, idx * 200);
+        });
+
+        setTimeout(() => {
+          isAnimating = false;
+        }, allPosts.length * 200 + 500);
+      }, 100);
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", currentTheme);
+    }
+
+    document.getElementById("replayBtn").addEventListener("click", replayAnimation);
+    document.getElementById("themeBtn").addEventListener("click", toggleTheme);
+
+    document.querySelectorAll(".seg-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.documentElement.setAttribute("data-intensity", btn.dataset.intensity);
+        document.querySelectorAll(".seg-btn").forEach(b => {
+          b.classList.toggle("active", b === btn);
+        });
+      });
+    });
+
+    renderTimeline();
+
+    setTimeout(() => {
+      replayAnimation();
+    }, 500);
+  </script>
+</body>
+</html>

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-Hans" data-theme="dark" data-scheme="c" data-contrast="strong">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X Ads Detector — UI Preview v2 (Inverted)</title>
+  <style>
+    :root[data-theme="dark"] {
+      --bg-primary: #000;
+      --bg-secondary: #16191a;
+      --text-primary: #e7e9ea;
+      --text-secondary: #71767b;
+      --border: #2f3336;
+    }
+
+    :root[data-theme="light"] {
+      --bg-primary: #fff;
+      --bg-secondary: #f7f9fa;
+      --text-primary: #0f1419;
+      --text-secondary: #536471;
+      --border: #eff3f4;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, "PingFang SC", "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    /* Decorative blobs so Scheme A glass blur has something to catch (dark only) */
+    .bg-blobs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      display: none;
+      background:
+        radial-gradient(600px 600px at 28% 18%, rgba(29, 155, 240, 0.10), transparent 62%),
+        radial-gradient(720px 720px at 76% 72%, rgba(120, 86, 255, 0.08), transparent 62%);
+    }
+
+    :root[data-theme="dark"][data-scheme="a"] .bg-blobs {
+      display: block;
+    }
+
+    /* ---------- Control bar ---------- */
+    .control-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 10px 16px 6px;
+    }
+
+    .control-footnote {
+      padding: 0 16px 8px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border-radius: 24px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 120ms ease;
+    }
+
+    .btn:hover {
+      background: var(--bg-primary);
+      border-color: var(--text-secondary);
+    }
+
+    .seg-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .seg-group {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .seg-btn {
+      padding: 6px 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 120ms ease;
+      white-space: nowrap;
+    }
+
+    .seg-btn.active {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      font-weight: 600;
+    }
+
+    /* ---------- Legend ---------- */
+    .legend {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      max-width: 280px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      z-index: 50;
+      line-height: 1.5;
+    }
+
+    .legend strong {
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ---------- Timeline ---------- */
+    .timeline {
+      max-width: 600px;
+      margin: 92px auto 0;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .post {
+      position: relative;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .post-inner {
+      position: relative;
+      z-index: 1;
+      transition: transform 120ms ease;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      flex-shrink: 0;
+      color: #fff;
+    }
+
+    .post-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .post-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-primary);
+    }
+
+    .post-handle,
+    .post-time {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .post-menu {
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 18px;
+    }
+
+    .post-body {
+      font-size: 15px;
+      color: var(--text-primary);
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+
+    .post-footer {
+      display: flex;
+      justify-content: space-around;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 12px;
+    }
+
+    .post-footer-item {
+      flex: 1;
+      cursor: pointer;
+      transition: color 120ms ease;
+    }
+
+    .post-footer-item:hover {
+      color: #1d9bf0;
+    }
+
+    /* ---------- Shared tier pill ---------- */
+    .pill {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      font-weight: 600;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* =========================================================
+       Scheme A — 玻璃聚焦 Glass Focus
+       ========================================================= */
+    :root[data-scheme="a"] .post[data-type="organic"]::before {
+      content: "";
+      position: absolute;
+      inset: 4px 8px;
+      border-radius: 16px;
+      pointer-events: none;
+      z-index: 0;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02) 45%, rgba(255, 255, 255, 0.05));
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 4px 16px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px) saturate(1.2);
+      -webkit-backdrop-filter: blur(8px) saturate(1.2);
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 400ms ease, transform 400ms ease;
+    }
+
+    :root[data-theme="light"][data-scheme="a"] .post[data-type="organic"]::before {
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.35));
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 20, 25, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 4px 14px rgba(15, 20, 25, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    :root[data-scheme="a"] .post[data-type="organic"].in::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    :root[data-scheme="a"] .post[data-type="hard"],
+    :root[data-scheme="a"] .post[data-type="soft"] {
+      transition: filter 400ms ease;
+    }
+
+    :root[data-scheme="a"] .post[data-type="hard"].in {
+      filter: saturate(0.35) brightness(0.72);
+    }
+
+    :root[data-theme="light"][data-scheme="a"] .post[data-type="hard"].in {
+      filter: saturate(0.4) brightness(0.96) contrast(0.92);
+    }
+
+    :root[data-scheme="a"] .post[data-type="soft"].in {
+      filter: saturate(0.55) brightness(0.82);
+    }
+
+    :root[data-theme="light"][data-scheme="a"] .post[data-type="soft"].in {
+      filter: saturate(0.6);
+    }
+
+    :root[data-scheme="a"] .pill.hard { color: #F4212E; background: rgba(244, 33, 46, 0.18); }
+    :root[data-theme="light"][data-scheme="a"] .pill.hard { color: #C0121F; background: rgba(244, 33, 46, 0.10); }
+    :root[data-scheme="a"] .pill.soft { color: #FF9A45; background: rgba(255, 122, 0, 0.16); }
+    :root[data-theme="light"][data-scheme="a"] .pill.soft { color: #B85C00; background: rgba(255, 122, 0, 0.10); }
+    :root[data-scheme="a"] .pill.maybe { color: #8B98A5; background: rgba(139, 152, 165, 0.16); box-shadow: inset 0 0 0 1px rgba(139, 152, 165, 0.3); }
+    :root[data-theme="light"][data-scheme="a"] .pill.maybe { color: #536471; background: rgba(83, 100, 113, 0.08); box-shadow: none; }
+
+    /* =========================================================
+       Scheme B — 光晕通道 Glow Lane
+       ========================================================= */
+    :root[data-scheme="b"] .post[data-type="organic"]::before {
+      content: "";
+      position: absolute;
+      inset: 2px 6px;
+      border-radius: 14px;
+      pointer-events: none;
+      z-index: 0;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(29, 155, 240, 0.55), rgba(0, 186, 124, 0.45));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 400ms ease;
+    }
+
+    :root[data-theme="light"][data-scheme="b"] .post[data-type="organic"]::before {
+      background: linear-gradient(135deg, rgba(29, 155, 240, 0.45), rgba(0, 186, 124, 0.35));
+    }
+
+    :root[data-scheme="b"] .post[data-type="organic"] {
+      transition: box-shadow 400ms ease;
+    }
+
+    :root[data-scheme="b"] .post[data-type="organic"].in::before {
+      opacity: 1;
+    }
+
+    :root[data-scheme="b"] .post[data-type="organic"].in {
+      box-shadow: -6px 0 14px -6px rgba(29, 155, 240, 0.35);
+    }
+
+    :root[data-theme="light"][data-scheme="b"] .post[data-type="organic"].in {
+      box-shadow: -6px 0 12px -8px rgba(29, 155, 240, 0.28);
+    }
+
+    :root[data-scheme="b"] .post[data-type="hard"],
+    :root[data-scheme="b"] .post[data-type="soft"] {
+      transition: filter 400ms ease, opacity 400ms ease;
+    }
+
+    :root[data-scheme="b"] .post[data-type="hard"].in {
+      filter: grayscale(0.85) brightness(0.7);
+      opacity: 0.85;
+    }
+
+    :root[data-theme="light"][data-scheme="b"] .post[data-type="hard"].in {
+      filter: grayscale(0.85) contrast(0.9);
+      opacity: 0.9;
+    }
+
+    :root[data-scheme="b"] .post[data-type="soft"].in {
+      filter: grayscale(0.5) brightness(0.82);
+    }
+
+    :root[data-theme="light"][data-scheme="b"] .post[data-type="soft"].in {
+      filter: grayscale(0.5);
+    }
+
+    :root[data-scheme="b"] .post[data-type="maybe"].in {
+      outline: 1px dashed rgba(139, 152, 165, 0.35);
+      outline-offset: -4px;
+    }
+
+    :root[data-theme="light"][data-scheme="b"] .post[data-type="maybe"].in {
+      outline-color: rgba(83, 100, 113, 0.3);
+    }
+
+    :root[data-scheme="b"] .pill.hard { color: #F4212E; background: rgba(244, 33, 46, 0.15); }
+    :root[data-theme="light"][data-scheme="b"] .pill.hard { color: #C0121F; background: rgba(244, 33, 46, 0.08); }
+    :root[data-scheme="b"] .pill.soft { color: #FFB020; background: rgba(255, 176, 32, 0.14); }
+    :root[data-theme="light"][data-scheme="b"] .pill.soft { color: #8a6100; background: rgba(255, 176, 32, 0.12); }
+    :root[data-scheme="b"] .pill.maybe { color: #8B98A5; background: rgba(139, 152, 165, 0.14); }
+    :root[data-theme="light"][data-scheme="b"] .pill.maybe { color: #536471; background: rgba(83, 100, 113, 0.07); }
+
+    /* =========================================================
+       Scheme C — 剧场模式 Theater
+       ========================================================= */
+    :root[data-scheme="c"] .post[data-type="organic"]:hover .post-inner {
+      transform: scale(1.004);
+    }
+
+    :root[data-scheme="c"] .post[data-type="hard"],
+    :root[data-scheme="c"] .post[data-type="soft"],
+    :root[data-scheme="c"] .post[data-type="maybe"] {
+      transition: opacity 400ms ease, filter 400ms ease;
+    }
+
+    :root[data-scheme="c"] .post[data-type="hard"].in {
+      opacity: 0.5;
+      filter: grayscale(0.9) brightness(0.75);
+    }
+
+    :root[data-theme="light"][data-scheme="c"] .post[data-type="hard"].in {
+      opacity: 0.55;
+      filter: grayscale(0.9) contrast(0.9);
+    }
+
+    :root[data-scheme="c"] .post[data-type="soft"].in {
+      opacity: 0.68;
+      filter: grayscale(0.55) brightness(0.85);
+    }
+
+    :root[data-theme="light"][data-scheme="c"] .post[data-type="soft"].in {
+      opacity: 0.72;
+      filter: grayscale(0.55);
+    }
+
+    :root[data-scheme="c"] .post[data-type="maybe"].in {
+      opacity: 0.85;
+    }
+
+    :root[data-theme="light"][data-scheme="c"] .post[data-type="maybe"].in {
+      opacity: 0.88;
+    }
+
+    :root[data-scheme="c"] .post[data-type="hard"].in:hover,
+    :root[data-scheme="c"] .post[data-type="soft"].in:hover {
+      opacity: 0.95;
+      filter: none;
+      transition-duration: 150ms;
+    }
+
+    :root[data-scheme="c"] .pill.hard { color: #F4212E; background: rgba(244, 33, 46, 0.18); box-shadow: inset 0 0 0 1px rgba(244, 33, 46, 0.35); }
+    :root[data-theme="light"][data-scheme="c"] .pill.hard { color: #C0121F; background: rgba(244, 33, 46, 0.09); box-shadow: none; }
+    :root[data-scheme="c"] .pill.soft { color: #FFAD1F; background: rgba(255, 173, 31, 0.16); box-shadow: inset 0 0 0 1px rgba(255, 173, 31, 0.35); }
+    :root[data-theme="light"][data-scheme="c"] .pill.soft { color: #8a6100; background: rgba(255, 173, 31, 0.14); box-shadow: none; }
+    :root[data-scheme="c"] .pill.maybe { color: #8B98A5; background: rgba(139, 152, 165, 0.15); box-shadow: inset 0 0 0 1px rgba(139, 152, 165, 0.3); }
+    :root[data-theme="light"][data-scheme="c"] .pill.maybe { color: #536471; background: rgba(83, 100, 113, 0.08); box-shadow: none; }
+
+    /* =========================================================
+       Strong contrast mode (data-contrast="strong")
+       All transitions 200ms; filter/opacity/transform/overlay only.
+       ========================================================= */
+    :root[data-contrast="strong"] .post[data-type] {
+      transition: opacity 200ms ease, filter 200ms ease, box-shadow 200ms ease;
+    }
+
+    :root[data-contrast="strong"] .post::before {
+      transition-duration: 200ms;
+    }
+
+    :root[data-contrast="strong"] .post-inner {
+      transition: transform 200ms ease;
+    }
+
+    /* Pills stay readable on very dim rows */
+    :root[data-contrast="strong"] .pill {
+      font-size: 12px;
+      padding: 3px 8px;
+    }
+
+    :root[data-theme="dark"][data-contrast="strong"] .pill.hard { color: #FF6B75; }
+    :root[data-theme="dark"][data-contrast="strong"] .pill.soft { color: #FFC24D; }
+    :root[data-theme="dark"][data-contrast="strong"] .pill.maybe { color: #A8B4C0; }
+
+    /* ----- Strong · Scheme A 玻璃聚焦 ----- */
+    :root[data-contrast="strong"][data-scheme="a"] .post[data-type="organic"]::before {
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.03) 45%, rgba(255, 255, 255, 0.08));
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 8px 28px rgba(0, 0, 0, 0.6);
+    }
+
+    :root[data-theme="light"][data-contrast="strong"][data-scheme="a"] .post[data-type="organic"]::before {
+      background: linear-gradient(160deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.56));
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 20, 25, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 8px 24px rgba(15, 20, 25, 0.14);
+    }
+
+    :root[data-contrast="strong"][data-scheme="a"] .post[data-type="organic"].in .post-inner {
+      transform: scale(1.01);
+    }
+
+    :root[data-contrast="strong"][data-scheme="a"] .post[data-type="hard"].in {
+      filter: saturate(0.15) brightness(0.5);
+      opacity: 0.55;
+    }
+
+    :root[data-contrast="strong"][data-scheme="a"] .post[data-type="hard"].in .post-inner {
+      transform: scale(0.97);
+    }
+
+    :root[data-contrast="strong"][data-scheme="a"] .post[data-type="soft"].in {
+      filter: saturate(0.3) brightness(0.65);
+      opacity: 0.7;
+    }
+
+    :root[data-contrast="strong"][data-scheme="a"] .post[data-type="maybe"].in {
+      opacity: 0.8;
+      filter: saturate(0.6);
+    }
+
+    /* ----- Strong · Scheme B 光晕通道 ----- */
+    :root[data-contrast="strong"][data-scheme="b"] .post[data-type="organic"]::before {
+      background: linear-gradient(135deg, rgba(29, 155, 240, 0.8), rgba(0, 186, 124, 0.68));
+    }
+
+    :root[data-contrast="strong"][data-scheme="b"] .post[data-type="organic"].in {
+      box-shadow: -10px 0 22px -6px rgba(29, 155, 240, 0.5);
+    }
+
+    :root[data-theme="light"][data-contrast="strong"][data-scheme="b"] .post[data-type="organic"]::before {
+      background: linear-gradient(135deg, rgba(29, 155, 240, 0.68), rgba(0, 186, 124, 0.53));
+    }
+
+    :root[data-theme="light"][data-contrast="strong"][data-scheme="b"] .post[data-type="organic"].in {
+      box-shadow: -10px 0 20px -8px rgba(29, 155, 240, 0.42);
+    }
+
+    :root[data-contrast="strong"][data-scheme="b"] .post[data-type="hard"].in {
+      filter: grayscale(1) brightness(0.55) blur(1px);
+      opacity: 0.6;
+    }
+
+    :root[data-contrast="strong"][data-scheme="b"] .post[data-type="soft"].in {
+      filter: grayscale(0.8) brightness(0.7);
+      opacity: 0.7;
+    }
+
+    :root[data-contrast="strong"][data-scheme="b"] .post[data-type="maybe"].in {
+      opacity: 0.8;
+      outline: 1px dashed rgba(139, 152, 165, 0.5);
+      outline-offset: -4px;
+    }
+
+    /* ----- Strong · Scheme C 剧场模式 ----- */
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="organic"].in {
+      filter: brightness(1.06) saturate(1.12);
+    }
+
+    :root[data-theme="light"][data-contrast="strong"][data-scheme="c"] .post[data-type="organic"].in {
+      filter: brightness(1) saturate(1.08);
+    }
+
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="organic"].in .post-inner {
+      transform: scale(1.01);
+    }
+
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="hard"].in {
+      opacity: 0.3;
+      filter: grayscale(1) brightness(0.55) blur(1.2px);
+    }
+
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="hard"].in .post-inner {
+      transform: scale(0.97);
+    }
+
+    :root[data-theme="light"][data-contrast="strong"][data-scheme="c"] .post[data-type="hard"].in {
+      opacity: 0.35;
+      filter: grayscale(1) contrast(0.85) blur(1px);
+    }
+
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="soft"].in {
+      opacity: 0.45;
+      filter: grayscale(0.85) brightness(0.65) blur(0.6px);
+    }
+
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="soft"].in .post-inner {
+      transform: scale(0.98);
+    }
+
+    :root[data-theme="light"][data-contrast="strong"][data-scheme="c"] .post[data-type="soft"].in {
+      opacity: 0.5;
+      filter: grayscale(0.8);
+    }
+
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="maybe"].in {
+      opacity: 0.68;
+      filter: grayscale(0.45) brightness(0.85);
+    }
+
+    :root[data-theme="light"][data-contrast="strong"][data-scheme="c"] .post[data-type="maybe"].in {
+      opacity: 0.72;
+      filter: grayscale(0.4);
+    }
+
+    /* Hover keeps ad content inspectable in strong mode (last so it wins) */
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="hard"].in:hover,
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="soft"].in:hover,
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="maybe"].in:hover {
+      opacity: 0.95;
+      filter: none;
+    }
+
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="hard"].in:hover .post-inner,
+    :root[data-contrast="strong"][data-scheme="c"] .post[data-type="soft"].in:hover .post-inner {
+      transform: scale(1);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blobs"></div>
+
+  <div class="control-bar">
+    <div class="control-row">
+      <button class="btn" id="replayBtn">▶ 重播 Replay</button>
+      <button class="btn" id="themeBtn">🌓 切换主题 Theme</button>
+      <div class="seg-control">
+        <span>方案 Scheme:</span>
+        <div class="seg-group">
+          <button class="seg-btn" data-scheme="a">A 玻璃聚焦</button>
+          <button class="seg-btn" data-scheme="b">B 光晕通道</button>
+          <button class="seg-btn active" data-scheme="c">C 剧场模式</button>
+        </div>
+      </div>
+      <div class="seg-control">
+        <span>对比 Contrast:</span>
+        <div class="seg-group">
+          <button class="seg-btn" data-contrast="normal">标准 Normal</button>
+          <button class="seg-btn active" data-contrast="strong">强烈 Strong</button>
+        </div>
+      </div>
+    </div>
+    <div class="control-footnote">所有效果零布局位移，兼容 X 虚拟滚动 · All effects are layout-shift-free</div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="timeline" id="timeline"></div>
+
+  <script>
+    const posts = [
+      {
+        name: "Tech Opinions",
+        handle: "@techguy_cn",
+        avatar: "T",
+        avatarBg: "#FF6B6B",
+        time: "2h",
+        text: "最近的大模型竞争真是激烈。开源模型在推理性能上已经逼近商用版本，这对整个行业来说是好事。",
+        type: "organic"
+      },
+      {
+        name: "VPN Global Official",
+        handle: "@vpn_official_cn",
+        avatar: "V",
+        avatarBg: "#4ECDC4",
+        time: "1h",
+        text: "🚀 立即体验全球最快的VPN服务！24小时客服支持，99.9%正常运行时间保证。限时优惠50%off 🎉 现在就连接到50+个国家！",
+        type: "hard"
+      },
+      {
+        name: "Developer News",
+        handle: "@devnews_daily",
+        avatar: "D",
+        avatarBg: "#95E1D3",
+        time: "58m",
+        text: "GitHub Copilot 最新版本支持实时代码审查。这些AI工具确实在改变开发工作流。",
+        type: "organic"
+      },
+      {
+        name: "Lifestyle KOL",
+        handle: "@stylekol_2024",
+        avatar: "L",
+        avatarBg: "#FFB6C1",
+        time: "45m",
+        text: "朋友们，最近入手了这个护肤品真的绝了！用了两周皮肤明显变好。我的粉丝们用我的优惠码 STYLE2024 可以打八折哦~ #好物推荐 #护肤必备",
+        type: "soft"
+      },
+      {
+        name: "Product Design",
+        handle: "@design_talk",
+        avatar: "P",
+        avatarBg: "#A8E6CF",
+        time: "32m",
+        text: "设计系统的可维护性往往被低估。一个好的设计系统能显著提高整个团队的效率。",
+        type: "organic"
+      },
+      {
+        name: "Random User",
+        handle: "@randomuser77",
+        avatar: "R",
+        avatarBg: "#FFD3B6",
+        time: "20m",
+        text: "这个新的笔记应用真的不错，特别是它的同步功能。界面也很清爽，比之前用的好多了。推荐给大家。",
+        type: "maybe"
+      },
+      {
+        name: "AI Research",
+        handle: "@airesearch_lab",
+        avatar: "A",
+        avatarBg: "#FFAAA5",
+        time: "10m",
+        text: "我们新发布的研究论文探讨了多模态学习在实时应用中的挑战。欢迎讨论和反馈。",
+        type: "organic"
+      }
+    ];
+
+    const pillLabels = {
+      hard: "硬广",
+      soft: "软广",
+      maybe: "疑似"
+    };
+
+    const legendTexts = {
+      a: "<strong>A 玻璃聚焦 Glass Focus</strong>真实内容浮起为磨砂玻璃卡片，广告降低饱和度退入背景 · Genuine posts float as frosted glass cards while ads recede, desaturated.",
+      b: "<strong>B 光晕通道 Glow Lane</strong>真实内容获得渐变光环与左侧光晕，广告转为灰调 · Genuine posts earn a gradient ring and left glow; ads fade toward gray.",
+      c: "<strong>C 剧场模式 Theater</strong>广告如剧场熄灯般变暗，真实内容保持全亮 · Ads dim like house lights going down; genuine posts stay at full brightness."
+    };
+
+    function createPost(post) {
+      const el = document.createElement("div");
+      el.className = "post";
+      el.dataset.type = post.type;
+
+      const pill = post.type === "organic"
+        ? ""
+        : `<span class="pill ${post.type}">${pillLabels[post.type]}</span>`;
+
+      el.innerHTML = `
+        <div class="post-inner">
+          <div class="post-header">
+            <div class="avatar" style="background: ${post.avatarBg};">${post.avatar}</div>
+            <div class="post-meta">
+              <span class="post-name">${post.name}</span>
+              <span class="post-handle">${post.handle}</span>
+              <span class="post-time">· ${post.time}</span>${pill}
+            </div>
+            <div class="post-menu">⋯</div>
+          </div>
+          <div class="post-body">${post.text}</div>
+          <div class="post-footer">
+            <div class="post-footer-item">💬</div>
+            <div class="post-footer-item">🔁</div>
+            <div class="post-footer-item">❤️</div>
+            <div class="post-footer-item">📊</div>
+          </div>
+        </div>
+      `;
+      return el;
+    }
+
+    function renderTimeline() {
+      const timeline = document.getElementById("timeline");
+      timeline.innerHTML = "";
+      posts.forEach(post => {
+        timeline.appendChild(createPost(post));
+      });
+    }
+
+    function replayAnimation() {
+      const allPosts = document.querySelectorAll(".post");
+      allPosts.forEach(p => p.classList.remove("in"));
+      void document.body.offsetHeight; /* force reflow so transitions restart */
+      allPosts.forEach((p, idx) => {
+        setTimeout(() => p.classList.add("in"), 100 + idx * 150);
+      });
+    }
+
+    function updateLegend() {
+      const scheme = document.documentElement.getAttribute("data-scheme");
+      const contrast = document.documentElement.getAttribute("data-contrast");
+      const contrastLine = contrast === "strong"
+        ? "当前对比：强烈 · Contrast: Strong"
+        : "当前对比：标准 · Contrast: Normal";
+      document.getElementById("legend").innerHTML =
+        `${legendTexts[scheme]}<br><em>${contrastLine}</em>`;
+    }
+
+    let currentTheme = "dark";
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", currentTheme);
+    });
+
+    document.getElementById("replayBtn").addEventListener("click", replayAnimation);
+
+    document.querySelectorAll(".seg-btn[data-scheme]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.documentElement.setAttribute("data-scheme", btn.dataset.scheme);
+        document.querySelectorAll(".seg-btn[data-scheme]").forEach(b => {
+          b.classList.toggle("active", b === btn);
+        });
+        updateLegend();
+        replayAnimation();
+      });
+    });
+
+    document.querySelectorAll(".seg-btn[data-contrast]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.documentElement.setAttribute("data-contrast", btn.dataset.contrast);
+        document.querySelectorAll(".seg-btn[data-contrast]").forEach(b => {
+          b.classList.toggle("active", b === btn);
+        });
+        updateLegend();
+        replayAnimation();
+      });
+    });
+
+    renderTimeline();
+    updateLegend();
+    setTimeout(replayAnimation, 300);
+  </script>
+</body>
+</html>
