@@ -8,11 +8,13 @@ const MAX_LABEL_LENGTH = 20;
  * Detects X's own "Promoted"/"Ad" badge on a tweet.
  *
  * Only a real badge convicts: the socialContext banner text, or a standalone
- * short leaf span outside the tweet text, the quoted card, the author name
- * row and any anchor. X's badge is never a link, while display names,
- * handles, timestamps and link-card domains all live inside anchors — that
- * asymmetry is what keeps "推广" as a display name or a card title reading
- * "Ad" from convicting the post.
+ * short leaf span outside the tweet text, the quoted card and any anchor.
+ * X's badge is never a link, while display names, handles, timestamps and
+ * link-card domains all live inside anchors — that asymmetry is what keeps
+ * "推广" as a display name or a card title reading "Ad" from convicting the
+ * post. Note the badge DOES live inside the User-Name container (right of
+ * the timestamp, verified on live x.com 2026-07), so the name row must NOT
+ * be excluded wholesale — the anchor rule alone is the discriminator.
  *
  * The placementTracking wrapper alone is deliberately NOT evidence: X also
  * wraps organic video/media components in it, so its mere presence says
@@ -33,7 +35,6 @@ function hasStandaloneLabelSpan(article: Element): boolean {
     if (span.children.length > 0) continue;
     if (span.closest(X_SELECTORS.tweetText) !== null) continue;
     if (span.closest(X_SELECTORS.quotedTweet) !== null) continue;
-    if (span.closest(X_SELECTORS.userName) !== null) continue;
     if (span.closest('a') !== null) continue;
     const text = (span.textContent ?? '').trim();
     if (text.length === 0 || text.length > MAX_LABEL_LENGTH) continue;

@@ -67,6 +67,22 @@ describe('detectHardAd', () => {
     expect(detectHardAd(article)).toBe(false);
   });
 
+  it('detects the badge inside User-Name but outside anchors (live X layout)', () => {
+    // Verified on live x.com 2026-07: the Ad badge is a bare span rendered
+    // inside the User-Name container, to the right of the linked timestamp.
+    document.body.innerHTML = `
+      <article data-testid="tweet">
+        <div data-testid="User-Name">
+          <a href="/brand"><span>Brand</span></a>
+          <a href="/brand/status/1"><time>6h</time></a>
+          <span>Ad</span>
+        </div>
+        <div data-testid="tweetText"><span>Our new product is here.</span></div>
+      </article>`;
+    const article = document.querySelector('article') as Element;
+    expect(detectHardAd(article)).toBe(true);
+  });
+
   it('still detects a real badge span outside anchors and name rows', () => {
     document.body.innerHTML = `
       <article data-testid="tweet">
