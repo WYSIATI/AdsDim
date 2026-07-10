@@ -18,6 +18,9 @@ const STRONG_KEYWORDS: readonly string[] = [
   '优惠码',
   '折扣码',
   '促销码',
+  '邀请码',
+  '注册码',
+  '返利',
   'use code',
   'promo code',
   'discount code',
@@ -45,10 +48,15 @@ const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\
 /**
  * Word-boundary aware containment check. `#ad` must not match `#advice`,
  * `sponsored` must not match `unsponsored` nor `#sponsored` (the hashtag
- * variant is its own keyword, so bare words reject a leading `#`). CJK
- * keywords match as substrings since CJK has no word boundaries.
+ * variant is its own keyword, so bare words reject a leading `#`).
+ *
+ * Keywords containing CJK match as plain substrings instead: CJK has no word
+ * boundaries, and the Latin-oriented trailing guard would reject real hits
+ * like 优惠码5折 where a digit directly follows the keyword (live x.com
+ * false negative, 2026-07).
  */
 export function containsKeyword(haystack: string, keyword: string): boolean {
+  if (/[^\x00-\x7f]/.test(keyword)) return haystack.includes(keyword);
   const prefixGuard = keyword.startsWith('#') ? '(?<![a-z0-9])' : '(?<![a-z0-9#])';
   const pattern = new RegExp(`${prefixGuard}${escapeRegExp(keyword)}(?![a-z0-9])`, 'i');
   return pattern.test(haystack);

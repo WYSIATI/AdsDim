@@ -5,6 +5,8 @@ const AFFILIATE_PARAM_PATTERNS: readonly RegExp[] = [
   /[?&]tag=/i,
   /[?&]aff(?:_?id|_?click_?id)?=/i,
   /utm_campaign=affiliate/i,
+  /[?&](?:ref|referral|invite|invitation)=/i,
+  /register\?[^\s"']*code=/i,
 ];
 
 /** Storefront / affiliate-shortlink domains: strong evidence. */

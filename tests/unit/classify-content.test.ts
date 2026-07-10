@@ -60,3 +60,26 @@ describe('classifyContent true positives still fire', () => {
     expect(result.tier).not.toBeNull();
   });
 });
+
+describe('live x.com search false-negative regressions (2026-07)', () => {
+  it('marks a promo code with a digit interlude (优惠码5折:CODE)', () => {
+    const v = verdict('CTExcel UK英国电信中英套餐，套餐5折，结算付款的时候填这个优惠码5折：DEAL50OFF 在现有优惠再5折');
+    expect(v.tier).toBe('soft');
+  });
+
+  it('marks an invite-code referral post (邀请码 TRUSTBNB)', () => {
+    const v = verdict('币安老用户回归福利来啦 现在绑定邀请码 TRUSTBNB ，即可享受手续费返佣');
+    expect(v.tier).toBe('soft');
+  });
+
+  it('marks a promo post whose second signal is a register?code= link', () => {
+    const v = verdict('性价比高的机场，奈云重生回归，6折优惠码，有需要的尽快使用哦～', [
+      'https://dash.naiun.io/#/register?code=xyz123',
+    ]);
+    expect(v.tier).toBe('soft');
+  });
+
+  it('still ignores a question about promo codes (single category)', () => {
+    expect(verdict('有人有优惠码吗？求一个，最好能叠加').tier).toBe(null);
+  });
+});
