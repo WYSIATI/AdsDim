@@ -20,3 +20,6 @@ stats-*.json
 *.log
 .idea/
 .vscode/
+
+# Playwright E2E artifacts
+e2e/.artifacts/
