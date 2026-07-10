@@ -1,0 +1,105 @@
+<!-- Synthetic X timeline fixture: minimal but faithful DOM shapes. -->
+<div data-fixture="timeline">
+  <!-- 1. Organic EN post -->
+  <article role="article" data-testid="tweet" data-fixture-id="organic-en">
+    <div>
+      <div data-testid="User-Name">
+        <span>Tech Opinions</span>
+        <span>@techguy</span>
+        <a href="/techguy/status/1001"><time datetime="2026-07-10T08:00:00Z">2h</time></a>
+      </div>
+      <div data-testid="tweetText">
+        <span>Open models are catching up on reasoning benchmarks. Great for the ecosystem.</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- 2. Promoted EN: standalone "Ad" badge span in the header area -->
+  <article role="article" data-testid="tweet" data-fixture-id="promoted-en">
+    <div>
+      <div data-testid="User-Name">
+        <span>VPN Global</span>
+        <span>@vpn_official</span>
+        <a href="/vpn_official/status/1002"><time datetime="2026-07-10T09:00:00Z">1h</time></a>
+      </div>
+      <div><span>Ad</span></div>
+      <div data-testid="tweetText">
+        <span>Experience the fastest VPN worldwide! 24/7 support, 99.9% uptime. Connect to 50+ countries now!</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- 3. Promoted ZH: socialContext banner labelled 广告 -->
+  <article role="article" data-testid="tweet" data-fixture-id="promoted-zh">
+    <div>
+      <div data-testid="socialContext"><span>广告</span></div>
+      <div data-testid="User-Name">
+        <span>手机大促</span>
+        <span>@phone_deals</span>
+        <a href="/phone_deals/status/1003"><time datetime="2026-07-10T09:30:00Z">45m</time></a>
+      </div>
+      <div data-testid="tweetText">
+        <span>年中大促！全场手机直降千元，点击进入官方旗舰店。</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- 4. Soft ad ZH: discount code + affiliate link + hashtag -->
+  <article role="article" data-testid="tweet" data-fixture-id="soft-zh">
+    <div>
+      <div data-testid="User-Name">
+        <span>Lifestyle KOL</span>
+        <span>@stylekol</span>
+        <a href="/stylekol/status/1004"><time datetime="2026-07-10T10:00:00Z">32m</time></a>
+      </div>
+      <div data-testid="tweetText">
+        <span>朋友们，最近入手的这个护肤品真的绝了！用我的优惠码 STYLE2024 可以打八折哦～ #好物推荐</span>
+        <a href="https://t.co/abc123">amzn.to/3xYz?tag=stylekol-20</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- 5. Potential EN: weak hints only (link in bio + linktr.ee) -->
+  <article role="article" data-testid="tweet" data-fixture-id="potential-en">
+    <div>
+      <div data-testid="User-Name">
+        <span>Random Creator</span>
+        <span>@randomcreator</span>
+        <a href="/randomcreator/status/1005"><time datetime="2026-07-10T10:20:00Z">20m</time></a>
+      </div>
+      <div data-testid="tweetText">
+        <span>This new note-taking app changed my workflow. Full review — link in bio.</span>
+        <a href="https://t.co/def456">linktr.ee/randomcreator</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- 6. Organic ZH that merely mentions 广告 in the body text -->
+  <article role="article" data-testid="tweet" data-fixture-id="organic-zh-mentions-ad">
+    <div>
+      <div data-testid="User-Name">
+        <span>媒体观察</span>
+        <span>@media_watch</span>
+        <a href="/media_watch/status/1006"><time datetime="2026-07-10T10:40:00Z">10m</time></a>
+      </div>
+      <div data-testid="tweetText">
+        <span>新广告法实施后，平台上的广告披露规范明显变好了，这是监管的胜利。</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- 7. Promoted EN via placementTracking wrapper, label "Promoted" -->
+  <article role="article" data-testid="tweet" data-fixture-id="promoted-placement">
+    <div data-testid="placementTracking">
+      <div data-testid="User-Name">
+        <span>Cloud Platform</span>
+        <span>@cloudplatform</span>
+        <a href="/cloudplatform/status/1007"><time datetime="2026-07-10T11:00:00Z">5m</time></a>
+      </div>
+      <div><span>Promoted</span></div>
+      <div data-testid="tweetText">
+        <span>Ship faster with our managed Kubernetes. Start your free trial today.</span>
+      </div>
+    </div>
+  </article>
+</div>
