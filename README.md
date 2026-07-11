@@ -20,7 +20,7 @@ AdsDim is an open-source MV3 Chrome extension that **marks** ads on the x.com ti
 
 ## Privacy
 
-**Zero network calls by default.** All detection runs locally in your browser; nothing is collected, uploaded, or tracked. Settings live only in the browser's extension sync storage.
+**Zero network calls by default.** All detection runs locally in your browser; nothing is collected, uploaded, or tracked. Settings live only in the browser's extension sync storage. See the full [privacy policy](./PRIVACY.md).
 
 ## Development
 
