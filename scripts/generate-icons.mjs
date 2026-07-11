@@ -11,6 +11,7 @@
  * fully reproducible: `node scripts/generate-icons.mjs`.
  */
 
+import { Buffer } from 'node:buffer';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
