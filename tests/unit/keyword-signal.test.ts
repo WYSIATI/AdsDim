@@ -28,10 +28,46 @@ describe('keywordSignal', () => {
     ['zh hashtag disclosure', '#广告 新品上市', 0.8],
     ['weak zh collab tag', '#合作 内容', 0.4],
     ['plain 广告 mention is not a keyword', '新广告法实施了', 0],
-    ['bare sponsored is only a weak hint', 'The conference was sponsored by Acme, great talks', 0.4],
+    [
+      'bare sponsored is only a weak hint',
+      'The conference was sponsored by Acme, great talks',
+      0.4,
+    ],
     ['hashtag sponsored is strong, not double counted', 'great collab #sponsored', 0.8],
     ['paid partnership disclosure is strong', 'Paid partnership with Acme Skincare', 0.8],
     ['casual wechat mention is not a keyword', '刚跟朋友吃饭，他微信上说这家店不错', 0],
+  ])('%s -> score %d', (_description, text, expectedScore) => {
+    expect(keywordSignal(text).score).toBeCloseTo(expectedScore, 5);
+  });
+
+  it.each([
+    // [description, text, expectedScore] — 2026-07 weak-keyword expansion.
+    ['link in comments', 'full breakdown, link in comments', 0.4],
+    ['link below', 'grab the guide, link below', 0.4],
+    ['check my pinned', 'check my pinned for details', 0.4],
+    ['sale ends', 'sale ends tonight at midnight', 0.4],
+    ['limited stock', 'limited stock available, be quick', 0.4],
+    ['last chance', 'last chance to save on the bundle', 0.4],
+    ['lifetime deal', 'lifetime deal on the app right now', 0.4],
+    ['enroll now', 'enroll now to lock in the rate', 0.4],
+    ['free webinar', 'free webinar this thursday', 0.4],
+    ['seats limited', 'register early, seats limited', 0.4],
+    ['my course', 'my course launches monday', 0.4],
+    ['presale', 'presale opens tomorrow at noon', 0.4],
+    ['airdrop', 'airdrop season is coming back', 0.4],
+    ['zh sign-up', '报名通道已开启', 0.4],
+    ['zh bootcamp', '训练营第三期开始招生', 0.4],
+    ['zh paid circle', '知识星球今天更新了', 0.4],
+    ['zh fomo tagline', '手慢无！最后几件', 0.4],
+    ['join my telegram', 'join my telegram for alpha', 0.4],
+    ['join my discord', 'join my discord for the drop', 0.4],
+    // False-positive guards for the expansion.
+    ['coursework is not my course', 'my coursework is due friday', 0],
+    ['airdropped supplies are not airdrop', 'the airdropped supplies finally landed', 0],
+    ['presales figures are not presale', 'presales are up this quarter', 0],
+    ['wholesale ends is not sale ends', 'buying wholesale ends up cheaper', 0],
+    ['linked below is not link below', 'the study is linked below the fold', 0],
+    ['last chances is not last chance', 'his last chances are slim', 0],
   ])('%s -> score %d', (_description, text, expectedScore) => {
     expect(keywordSignal(text).score).toBeCloseTo(expectedScore, 5);
   });

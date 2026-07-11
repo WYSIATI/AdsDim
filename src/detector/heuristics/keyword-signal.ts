@@ -50,6 +50,27 @@ const WEAK_KEYWORDS: readonly string[] = [
   'brand ambassador',
   'in partnership with',
   'at checkout',
+  // 2026-07 expansion: pointer phrases, urgency vocabulary, course/community
+  // funnels and crypto vocabulary that soft ads lean on.
+  'link in comments',
+  'link below',
+  'check my pinned',
+  'sale ends',
+  'limited stock',
+  'last chance',
+  'lifetime deal',
+  'enroll now',
+  'free webinar',
+  'seats limited',
+  'my course',
+  'presale',
+  'airdrop',
+  '报名',
+  '训练营',
+  '知识星球',
+  '手慢无',
+  'join my telegram',
+  'join my discord',
 ];
 
 const STRONG_WEIGHT = 0.8;

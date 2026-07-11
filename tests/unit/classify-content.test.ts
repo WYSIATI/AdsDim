@@ -138,6 +138,30 @@ describe('giveaway promotion detection (2026-07)', () => {
   });
 });
 
+describe('weak-keyword expansion (2026-07)', () => {
+  it('needs corroboration: course-launch stack + code phrase -> soft', () => {
+    expect(verdict('Enroll now — my course is 20% off, link below').tier).toBe('soft');
+  });
+
+  it('needs corroboration: urgency keywords + bio-link url -> potential', () => {
+    expect(verdict('Last chance! sale ends tonight', ['https://linktr.ee/shop']).tier).toBe(
+      'potential',
+    );
+  });
+
+  it.each([
+    ['course mention alone', 'My course on woodworking got featured in the paper'],
+    ['webinar chatter alone', 'Free webinar on tax law next week, seats limited'],
+    ['telegram invite alone', 'join my telegram for alpha'],
+    [
+      'apple airdrop stays organic with airdrop as weak keyword',
+      'sent it via AirDrop, check your phone',
+    ],
+  ] as const)('%s -> organic (uncorroborated or under threshold)', (_description, text) => {
+    expect(verdict(text).tier).toBeNull();
+  });
+});
+
 describe('crypto promo mechanics detection (2026-07)', () => {
   it.each([
     ['airdrop claim mechanics', 'Connect wallet to claim the $ZETA airdrop', 'potential'],
