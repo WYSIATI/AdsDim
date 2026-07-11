@@ -17,6 +17,11 @@ describe('contactInfoSignal', () => {
     ['dm without commerce en', 'DM me for collab ideas', 0],
     ['zh dm without commerce', '私信我聊聊今天的比赛', 0],
     ['zh dm with commerce', '想拿货的私信我', 0.6],
+    // Commerce co-occurrence terms: price list / 报价 / 下单 (2026-07).
+    ['zh dm with quote request', '需要的私信，报价单奉上', 0.6],
+    ['zh wechat mention with quote term', '想拿最新报价的加微信', 0.6],
+    ['zh dm with order term', '今天下单的宝贝私信我', 0.6],
+    ['zh quote chatter without contact channel', '今天的报价单终于出了', 0],
     // Dedicated channels stay unconditional.
     ['whatsapp', 'WhatsApp us to order', 0.6],
     ['telegram', 'join our telegram for deals', 0.6],
