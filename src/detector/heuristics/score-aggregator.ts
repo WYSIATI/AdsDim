@@ -14,6 +14,9 @@ export const SIGNAL_WEIGHTS: Readonly<Record<SignalId, number>> = {
   // Same rationale as discount-code: mechanics are disclosure-grade, so the
   // weight alone must clear the potential threshold (0.35).
   'promo-mechanics': 0.4,
+  // Weak structural shape (hashtag floods, emoji clusters): never enough on
+  // its own, only ever a corroborating nudge.
+  structural: 0.25,
 };
 
 /** Aggregated heuristic evidence for one tweet. */

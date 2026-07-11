@@ -4,6 +4,7 @@ import { discountCodeSignal } from './heuristics/discount-code-signal';
 import { keywordSignal } from './heuristics/keyword-signal';
 import { promoMechanicsSignal } from './heuristics/promo-mechanics-signal';
 import { aggregateSignals } from './heuristics/score-aggregator';
+import { structuralSignal } from './heuristics/structural-signal';
 import { urlSignal } from './heuristics/url-signal';
 import { mapAggregateToTier, thresholdsForSensitivity } from './tier-mapping';
 
@@ -39,6 +40,7 @@ export function classifyContent(content: TweetContent, options: ContentOptions):
     discountCodeSignal(content.text),
     contactInfoSignal(content.text),
     promoMechanicsSignal(content.text, content.urls),
+    structuralSignal(content.text, content.urls),
   ];
   const aggregate = aggregateSignals(signals);
   const tier = mapAggregateToTier(aggregate, thresholdsForSensitivity(options.sensitivity));

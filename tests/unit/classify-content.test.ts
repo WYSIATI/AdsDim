@@ -162,6 +162,20 @@ describe('weak-keyword expansion (2026-07)', () => {
   });
 });
 
+describe('structural signal corroboration (2026-07 round 2)', () => {
+  it('weak keyword + shill structure -> potential', () => {
+    expect(verdict('Last chance 🚀🚀🚀 $MOON $GEM').tier).toBe('potential');
+  });
+
+  it('shill structure alone stays organic (single category)', () => {
+    expect(verdict('🚀🚀🚀 $AA $BB #a #b #c #d #e 👇', ['pump.example/x']).tier).toBeNull();
+  });
+
+  it('plain enthusiasm stays organic', () => {
+    expect(verdict('what a game tonight 🔥🔥').tier).toBeNull();
+  });
+});
+
 describe('crypto promo mechanics detection (2026-07)', () => {
   it.each([
     ['airdrop claim mechanics', 'Connect wallet to claim the $ZETA airdrop', 'potential'],
