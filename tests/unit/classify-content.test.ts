@@ -241,3 +241,45 @@ describe('crypto promo mechanics detection (2026-07)', () => {
     expect(verdict(text).tier).toBeNull();
   });
 });
+
+describe('round-2 vocabulary packs (2026-07)', () => {
+  it.each([
+    ['scam funnel: gig pay + wechat', '兼职日结，加微信 xy123 咨询', [], 'potential'],
+    [
+      'vpn reseller + register link',
+      '性价比机场，注册就送流量',
+      ['https://dash.naiun.io/#/register?code=xyz'],
+      'soft',
+    ],
+    ['diet keyword + discount code', '产后瘦身分享，用我的优惠码 SLIM20', [], 'soft'],
+    [
+      'adult funnel: keyword + onlyfans link',
+      'new content tonight, check my of',
+      ['onlyfans.com/babe'],
+      'potential',
+    ],
+    [
+      'app push: keywords + store link',
+      'Download now — link below',
+      ['https://apps.apple.com/app/id1'],
+      'potential',
+    ],
+    ['betting keywords + telegram', 'sure odds daily, join my telegram', [], 'potential'],
+  ] as const)('%s -> %s', (_description, text, urls, expectedTier) => {
+    expect(verdict(text, urls).tier).toBe(expectedTier);
+  });
+
+  it.each([
+    ['gig-work question, no contact', '兼职日结的工作靠谱吗？', []],
+    ['waiting at a real airport', '在机场候机，随手拍了张照片', []],
+    ['office hours', 'check my office door for the updated hours', []],
+    ['weight-loss chat alone', 'trying to lose weight fast before summer', []],
+    [
+      'app store news alone',
+      'the redesigned app store looks great',
+      ['https://apps.apple.com/story/id2'],
+    ],
+  ] as const)('%s -> organic', (_description, text, urls) => {
+    expect(verdict(text, urls).tier).toBeNull();
+  });
+});

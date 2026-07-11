@@ -4,7 +4,8 @@ import type { SignalResult } from '../../types';
  * WeChat-style handle disclosure: "微信: glow88", "vx：abc123". A concrete
  * handle is a solicitation on its own; a bare platform mention is not.
  */
-const WECHAT_HANDLE_PATTERN = /(?<![a-z0-9])(?:微信|wechat|weixin|vx|v)\s*[:：]\s*[A-Za-z0-9_-]{4,}/i;
+const WECHAT_HANDLE_PATTERN =
+  /(?<![a-z0-9])(?:微信|wechat|weixin|vx|v)\s*[:：]\s*[A-Za-z0-9_-]{4,}/i;
 
 /** Bare WeChat mention: only counts alongside commerce vocabulary. */
 const WECHAT_MENTION_PATTERN = /微信|weixin|wechat/i;

@@ -93,6 +93,32 @@ const matchTokenLaunch = (text: string, urls: readonly string[]): readonly strin
   return hasCompanion ? [launch[0]] : [];
 };
 
+/** Scam-adjacent zh vocabulary: weak alone, disclosure-grade with a contact. */
+const SCAM_TERM_PATTERN =
+  /兼职[\s\S]{0,20}?日结|日结[\s\S]{0,20}?兼职|在家赚钱|代写|代考|代办证|低息贷款|快速下款|刷单/;
+/** A reachable channel next to a scam term turns chatter into a funnel. */
+const CONTACT_HINT_PATTERN =
+  /微信|weixin|wechat|(?<![a-z0-9])vx?\s*[:：]|私信|telegram|whatsapp|加我|\bdm\b/i;
+
+/**
+ * Scam-funnel co-occurrence: the vocabulary is only a weak keyword on its
+ * own (complaints and warnings use the same words), but paired with a
+ * contact channel it is always a solicitation.
+ */
+const matchScamFunnel = (text: string): readonly string[] => {
+  const scam = text.match(SCAM_TERM_PATTERN);
+  return scam && CONTACT_HINT_PATTERN.test(text) ? [scam[0]] : [];
+};
+
+/** 机场 = VPN-reseller slang; real airports never come with signup links. */
+const VPN_RESELLER_PATTERN = /机场/;
+const SIGNUP_URL_PATTERN = /register|signup|subscribe/i;
+
+const matchVpnReseller = (text: string, urls: readonly string[]): readonly string[] => {
+  if (!VPN_RESELLER_PATTERN.test(text)) return [];
+  return urls.some((url) => SIGNUP_URL_PATTERN.test(url)) ? ['机场'] : [];
+};
+
 const matchRule = (text: string, rule: MechanicsRule): readonly string[] => {
   if (rule.guard?.test(text)) return [];
   const match = text.match(rule.pattern);
@@ -104,6 +130,8 @@ export function promoMechanicsSignal(text: string, urls: readonly string[] = [])
   const matches = [
     ...MECHANICS_RULES.flatMap((rule) => matchRule(text, rule)),
     ...matchTokenLaunch(text, urls),
+    ...matchScamFunnel(text),
+    ...matchVpnReseller(text, urls),
   ];
   return {
     id: 'promo-mechanics',

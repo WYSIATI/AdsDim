@@ -23,6 +23,8 @@ const DISCLOSURE_DOMAINS: readonly string[] = [
 /** Storefront / affiliate-shortlink domains: strong evidence. */
 const STRONG_DOMAINS: readonly string[] = [
   'amzn.to',
+  // Subscription funnel: linked from X purely to convert followers.
+  'onlyfans.com',
   's.click.aliexpress.com',
   'taobao.com',
   'tb.cn',
@@ -34,6 +36,9 @@ const STRONG_DOMAINS: readonly string[] = [
 /** Generic shorteners / bio-link hubs: weak evidence on their own. */
 const WEAK_DOMAINS: readonly string[] = [
   'bit.ly',
+  // App-install pushes: often promotion, sometimes genuine recommendation.
+  'apps.apple.com',
+  'play.google.com',
   'tinyurl.com',
   'linktr.ee',
   't.cn',

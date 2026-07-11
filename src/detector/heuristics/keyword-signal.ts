@@ -71,6 +71,24 @@ const WEAK_KEYWORDS: readonly string[] = [
   '手慢无',
   'join my telegram',
   'join my discord',
+  // Round-2 packs: scam-adjacent zh (disclosure-grade only alongside a
+  // contact channel — see promo-mechanics), diet/supplement, adult funnel,
+  // app push and betting vocabulary.
+  '在家赚钱',
+  '代写',
+  '代考',
+  '代办证',
+  '低息贷款',
+  '快速下款',
+  '刷单',
+  'lose weight fast',
+  'fat burner',
+  '三天见效',
+  '瘦身',
+  'check my of',
+  'download now',
+  'sure odds',
+  'fixed matches',
 ];
 
 const STRONG_WEIGHT = 0.8;

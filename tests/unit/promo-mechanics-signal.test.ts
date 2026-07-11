@@ -151,3 +151,50 @@ describe('promoMechanicsSignal Chinese crypto and gambling mechanics', () => {
     expect(promoMechanicsSignal(text).score).toBe(0);
   });
 });
+
+describe('promoMechanicsSignal scam funnels (zh) with contact co-occurrence', () => {
+  it.each([
+    ['gig-work daily pay + wechat', '兼职日结，加微信 xy123 咨询', 1],
+    ['work-from-home money + dm', '在家赚钱，私信我了解详情', 1],
+    ['essay ghostwriting + vx handle', '代写论文，vx：essay88', 1],
+    ['loan funnel + wechat', '低息贷款快速下款，加我微信', 1],
+    ['order brushing + telegram', '刷单兼职，telegram 联系', 1],
+  ])('%s -> %d', (_description, text, expected) => {
+    expect(promoMechanicsSignal(text).score).toBe(expected);
+  });
+
+  it.each([
+    ['work-from-home complaint without contact', '在家赚钱真的没那么容易'],
+    ['gig-work question without contact', '兼职日结的工作靠谱吗？'],
+    ['discussing ghostwriting without contact', '论文是我自己写的，没找代写'],
+  ])('%s -> 0', (_description, text) => {
+    expect(promoMechanicsSignal(text).score).toBe(0);
+  });
+});
+
+describe('promoMechanicsSignal VPN reseller (机场) mechanics', () => {
+  it.each([
+    [
+      'airport slang + register link',
+      '这家机场速度不错，推荐',
+      ['https://dash.foo.io/#/register?code=x'],
+      1,
+    ],
+    [
+      'airport slang + subscribe link',
+      '新机场上线，稳定不掉线',
+      ['https://foo.example/subscribe'],
+      1,
+    ],
+  ])('%s -> %d', (_description, text, urls, expected) => {
+    expect(promoMechanicsSignal(text, urls as readonly string[]).score).toBe(expected);
+  });
+
+  it.each([
+    ['waiting at a real airport', '在机场等航班，无聊死了', []],
+    ['airport bus + unrelated link', '机场大巴真方便', ['https://news.example/story']],
+    ['register link without airport slang', '注册了一个新论坛', ['https://forum.example/register']],
+  ])('%s -> 0', (_description, text, urls) => {
+    expect(promoMechanicsSignal(text, urls as readonly string[]).score).toBe(0);
+  });
+});
