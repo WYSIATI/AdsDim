@@ -22,7 +22,8 @@ const pseudoStyleOf = (
   property: string,
 ): Promise<string> =>
   locator.evaluate(
-    (el, { pseudoElement, prop }) => getComputedStyle(el, pseudoElement).getPropertyValue(prop).trim(),
+    (el, { pseudoElement, prop }) =>
+      getComputedStyle(el, pseudoElement).getPropertyValue(prop).trim(),
     { pseudoElement: pseudo, prop: property },
   );
 

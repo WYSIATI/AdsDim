@@ -49,9 +49,9 @@ test.describe('hover reveal of dimmed ads', () => {
     await parkPointer(page);
     // The fixture mimics X: clicking parked programmatic focus on the ad's
     // timeline cell. The reveal must not latch onto it.
-    expect(
-      await ad.evaluate((el) => el.ownerDocument.activeElement === el.parentElement),
-    ).toBe(true);
+    expect(await ad.evaluate((el) => el.ownerDocument.activeElement === el.parentElement)).toBe(
+      true,
+    );
     await expect.poll(() => opacityOf(ad)).toBe(DIMMED_OPACITY);
   });
 
