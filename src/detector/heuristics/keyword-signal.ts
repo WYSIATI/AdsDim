@@ -68,7 +68,7 @@ const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\
  * false negative, 2026-07).
  */
 export function containsKeyword(haystack: string, keyword: string): boolean {
-  if (/[^\x00-\x7f]/.test(keyword)) return haystack.includes(keyword);
+  if (/\P{ASCII}/u.test(keyword)) return haystack.includes(keyword);
   const prefixGuard = keyword.startsWith('#') ? '(?<![a-z0-9])' : '(?<![a-z0-9#])';
   const pattern = new RegExp(`${prefixGuard}${escapeRegExp(keyword)}(?![a-z0-9])`, 'i');
   return pattern.test(haystack);
