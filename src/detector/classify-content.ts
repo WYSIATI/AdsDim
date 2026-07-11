@@ -38,7 +38,7 @@ export function classifyContent(content: TweetContent, options: ContentOptions):
     urlSignal(content.urls),
     discountCodeSignal(content.text),
     contactInfoSignal(content.text),
-    promoMechanicsSignal(content.text),
+    promoMechanicsSignal(content.text, content.urls),
   ];
   const aggregate = aggregateSignals(signals);
   const tier = mapAggregateToTier(aggregate, thresholdsForSensitivity(options.sensitivity));

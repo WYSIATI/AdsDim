@@ -34,7 +34,12 @@ describe('classifyContent true positives still fire', () => {
       ['amzn.to/3xYz?tag=stylekol-20'],
       'soft',
     ],
-    ['weak keyword + weak url corroborate', 'Full review — link in bio', ['linktr.ee/me'], 'potential'],
+    [
+      'weak keyword + weak url corroborate',
+      'Full review — link in bio',
+      ['linktr.ee/me'],
+      'potential',
+    ],
   ] as const)('%s -> %s', (_description, text, urls, expectedTier) => {
     expect(verdict(text, urls).tier).toBe(expectedTier);
   });
@@ -63,7 +68,9 @@ describe('classifyContent true positives still fire', () => {
 
 describe('live x.com search false-negative regressions (2026-07)', () => {
   it('marks a promo code with a digit interlude (优惠码5折:CODE)', () => {
-    const v = verdict('CTExcel UK英国电信中英套餐，套餐5折，结算付款的时候填这个优惠码5折：DEAL50OFF 在现有优惠再5折');
+    const v = verdict(
+      'CTExcel UK英国电信中英套餐，套餐5折，结算付款的时候填这个优惠码5折：DEAL50OFF 在现有优惠再5折',
+    );
     expect(v.tier).toBe('soft');
   });
 
@@ -106,7 +113,9 @@ describe('English soft-ad coverage (2026-07 tuning)', () => {
   });
 
   it('still ignores discussing sponsorship (weak keywords, single category)', () => {
-    expect(verdict('The stadium is sponsored by a bank, shop now has new merch too').tier).toBe(null);
+    expect(verdict('The stadium is sponsored by a bank, shop now has new merch too').tier).toBe(
+      null,
+    );
   });
 });
 
@@ -123,6 +132,35 @@ describe('giveaway promotion detection (2026-07)', () => {
   });
 
   it('ignores merely mentioning a giveaway (no mechanics)', () => {
-    expect(verdict('Thinking about doing a giveaway next month, what should the prize be?').tier).toBe(null);
+    expect(
+      verdict('Thinking about doing a giveaway next month, what should the prize be?').tier,
+    ).toBe(null);
+  });
+});
+
+describe('crypto promo mechanics detection (2026-07)', () => {
+  it.each([
+    ['airdrop claim mechanics', 'Connect wallet to claim the $ZETA airdrop', 'potential'],
+    ['token presale + join', '$PEPE2 presale is live, join now', 'potential'],
+    ['engagement-bait entry stack', 'RT to win! Tag 3 friends and follow @us', 'potential'],
+    ['zh usdt otc + wechat handle', '长期收U，微信: usdt888', 'potential'],
+    ['zh gambling platform promo', '博彩平台注册即送彩金', 'potential'],
+    [
+      'trade signals + code corroboration',
+      'Copy my trades — join my VIP, use code ALPHA20',
+      'soft',
+    ],
+  ] as const)('%s -> %s', (_description, text, expectedTier) => {
+    expect(verdict(text).tier).toBe(expectedTier);
+  });
+
+  it.each([
+    ['apple airdrop transfer', 'sent it via AirDrop, check your phone'],
+    ['apple airdrop bug report', 'AirDrop not working since the iOS update'],
+    ['concert presale', 'presale tickets for the concert go on sale Friday'],
+    ['spinach dinner', '晚饭炒了个菠菜，很下饭'],
+    ['usb drive sale', '低价出U盘一个，九成新'],
+  ] as const)('%s -> organic', (_description, text) => {
+    expect(verdict(text).tier).toBeNull();
   });
 });
