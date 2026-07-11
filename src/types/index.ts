@@ -23,6 +23,8 @@ export interface TweetData {
   readonly authorName: string | null;
   readonly authorHandle: string | null;
   readonly urls: readonly string[];
+  /** True when the article carries a "Replying to" / 回复 context row. */
+  readonly isReply: boolean;
 }
 
 /** Output of a single heuristic signal. */

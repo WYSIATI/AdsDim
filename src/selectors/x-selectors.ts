@@ -21,6 +21,12 @@ export const X_SELECTORS = {
    * role="link" but carry no tweet text.
    */
   quotedTweet: 'div[role="link"]',
+  /**
+   * Candidate "Replying to @x" / "回复" context rows. X gives the row no
+   * testid, so the extractor confirms candidates by their leading text and
+   * a contained profile anchor, and excludes anything inside tweetText.
+   */
+  replyContext: 'div[dir]',
 } as const;
 
 export type XSelectorKey = keyof typeof X_SELECTORS;

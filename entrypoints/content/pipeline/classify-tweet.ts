@@ -80,7 +80,7 @@ function classify(
   }
 
   const verdict = classifyContent(
-    { text: data.text, urls: data.urls },
+    { text: data.text, urls: data.urls, isReply: data.isReply },
     { sensitivity: settings.sensitivity, keywords: settings.keywords },
     [repetition],
   );

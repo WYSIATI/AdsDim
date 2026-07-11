@@ -59,6 +59,53 @@ describe('extractTweetData', () => {
     expect(data.urls).not.toContain('Node.js');
   });
 
+  describe('reply detection', () => {
+    const replyArticle = (contextRow: string, text = 'nice take'): Element => {
+      document.body.innerHTML = `
+        <article data-testid="tweet">
+          <div>
+            ${contextRow}
+            <div data-testid="tweetText" dir="auto"><span>${text}</span></div>
+          </div>
+        </article>`;
+      return document.querySelector('article') as Element;
+    };
+
+    it('detects an English reply context row', () => {
+      const article = replyArticle(
+        '<div dir="ltr">Replying to <a href="/someone">@someone</a></div>',
+      );
+      expect(extractTweetData(article).isReply).toBe(true);
+    });
+
+    it('detects a Chinese reply context row', () => {
+      const article = replyArticle('<div dir="ltr">回复 <a href="/someone">@someone</a></div>');
+      expect(extractTweetData(article).isReply).toBe(true);
+    });
+
+    it('is false for a plain tweet', () => {
+      expect(extractTweetData(fixtureArticle(doc, 'organic-en')).isReply).toBe(false);
+    });
+
+    it('ignores tweet text that merely starts with "Replying to"', () => {
+      document.body.innerHTML = `
+        <article data-testid="tweet">
+          <div>
+            <div data-testid="tweetText" dir="auto">
+              <span>Replying to </span><a href="/x">@x</a><span> thanks all!</span>
+            </div>
+          </div>
+        </article>`;
+      const article = document.querySelector('article') as Element;
+      expect(extractTweetData(article).isReply).toBe(false);
+    });
+
+    it('ignores a dir row without a profile anchor', () => {
+      const article = replyArticle('<div dir="ltr">Replying to my earlier point here</div>');
+      expect(extractTweetData(article).isReply).toBe(false);
+    });
+  });
+
   it('returns a frozen (immutable) snapshot', () => {
     const data = extractTweetData(fixtureArticle(doc, 'organic-en'));
     expect(Object.isFrozen(data)).toBe(true);

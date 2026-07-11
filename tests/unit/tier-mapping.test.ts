@@ -54,9 +54,9 @@ describe('mapAggregateToTier corroboration rule', () => {
   });
 
   it('honours custom thresholds', () => {
-    expect(mapAggregateToTier(aggregate(0.6, ['keyword', 'url']), thresholdsForSensitivity(1))).toBe(
-      'soft',
-    );
+    expect(
+      mapAggregateToTier(aggregate(0.6, ['keyword', 'url']), thresholdsForSensitivity(1)),
+    ).toBe('soft');
   });
 });
 

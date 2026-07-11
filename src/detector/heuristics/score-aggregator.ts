@@ -22,6 +22,23 @@ export const SIGNAL_WEIGHTS: Readonly<Record<SignalId, number>> = {
   repetition: 0.4,
 };
 
+/**
+ * Reply spam (link droppers under viral posts) reads softer than timeline
+ * spam because replies are short; a link-carrying reply whose lexical
+ * signals (keyword / promo-mechanics) already fired gets this flat boost.
+ * It never creates corroboration by itself — the tier gate is unchanged.
+ */
+export const REPLY_SPAM_BONUS = 0.15;
+
+/** Signal categories whose firing qualifies a reply for the spam bonus. */
+const LEXICAL_CATEGORIES: readonly SignalId[] = ['keyword', 'promo-mechanics'];
+
+/** Aggregation context beyond the signals themselves. */
+export interface AggregateOptions {
+  /** True when the post is a reply carrying at least one external link. */
+  readonly replyWithLink?: boolean;
+}
+
 /** Aggregated heuristic evidence for one tweet. */
 export interface AggregateResult {
   /** Weighted 0..1 ad-likelihood score. */
@@ -33,14 +50,20 @@ export interface AggregateResult {
 }
 
 /** Aggregates weighted signal scores into a single evidence summary. */
-export function aggregateSignals(signals: readonly SignalResult[]): AggregateResult {
+export function aggregateSignals(
+  signals: readonly SignalResult[],
+  options: AggregateOptions = {},
+): AggregateResult {
   const fired = signals.filter((signal) => clamp01(signal.score) > 0);
   const total = fired.reduce(
     (sum, signal) => sum + (SIGNAL_WEIGHTS[signal.id] ?? 0) * clamp01(signal.score),
     0,
   );
+  const qualifiesForBonus =
+    options.replyWithLink === true &&
+    fired.some((signal) => LEXICAL_CATEGORIES.includes(signal.id));
   return {
-    score: Math.min(1, total),
+    score: Math.min(1, total + (qualifiesForBonus ? REPLY_SPAM_BONUS : 0)),
     firedCategories: fired.map((signal) => signal.id),
     hasDisclosure: fired.some((signal) => signal.disclosure === true),
   };

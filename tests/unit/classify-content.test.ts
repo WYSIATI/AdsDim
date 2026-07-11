@@ -283,3 +283,35 @@ describe('round-2 vocabulary packs (2026-07)', () => {
     expect(verdict(text, urls).tier).toBeNull();
   });
 });
+
+describe('reply-spam boost (2026-07 round 2)', () => {
+  const APP_URLS = ['https://apps.apple.com/app/id1'] as const;
+
+  it('a link-carrying reply with keyword evidence gets boosted to soft', () => {
+    const result = classifyContent(
+      { text: 'Download now — link below', urls: APP_URLS, isReply: true },
+      DEFAULT_OPTIONS,
+    );
+    expect(result.tier).toBe('soft');
+  });
+
+  it('the same post outside a reply stays potential', () => {
+    expect(verdict('Download now — link below', APP_URLS).tier).toBe('potential');
+  });
+
+  it('a reply with a link but zero lexical signals gets no bonus', () => {
+    const result = classifyContent(
+      { text: 'great thread, thanks for sharing', urls: ['https://bit.ly/x'], isReply: true },
+      DEFAULT_OPTIONS,
+    );
+    expect(result.tier).toBeNull();
+  });
+
+  it('a reply whose only urls are platform-internal gets no bonus', () => {
+    const result = classifyContent(
+      { text: 'Download now — link below', urls: ['/status/1', 'https://t.co/x'], isReply: true },
+      DEFAULT_OPTIONS,
+    );
+    expect(result.tier).toBeNull();
+  });
+});

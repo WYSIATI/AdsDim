@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { aggregateSignals, SIGNAL_WEIGHTS } from '../../src/detector/heuristics/score-aggregator';
+import {
+  aggregateSignals,
+  REPLY_SPAM_BONUS,
+  SIGNAL_WEIGHTS,
+} from '../../src/detector/heuristics/score-aggregator';
 import type { SignalResult } from '../../src/types';
 
 const signal = (id: SignalResult['id'], score: number, disclosure?: boolean): SignalResult => ({
@@ -61,5 +65,35 @@ describe('aggregateSignals', () => {
 
   it('ignores disclosure on zero-score signals', () => {
     expect(aggregateSignals([signal('keyword', 0, true)]).hasDisclosure).toBe(false);
+  });
+
+  describe('reply-spam bonus', () => {
+    it('adds the bonus when a link-carrying reply also fired keywords', () => {
+      const result = aggregateSignals([signal('keyword', 1)], { replyWithLink: true });
+      expect(result.score).toBeCloseTo(SIGNAL_WEIGHTS.keyword + REPLY_SPAM_BONUS, 5);
+    });
+
+    it('adds the bonus for promo-mechanics too', () => {
+      const result = aggregateSignals([signal('promo-mechanics', 1)], { replyWithLink: true });
+      expect(result.score).toBeCloseTo(SIGNAL_WEIGHTS['promo-mechanics'] + REPLY_SPAM_BONUS, 5);
+    });
+
+    it('gives no bonus when only non-lexical signals fired', () => {
+      const result = aggregateSignals([signal('url', 1)], { replyWithLink: true });
+      expect(result.score).toBeCloseTo(SIGNAL_WEIGHTS.url, 5);
+    });
+
+    it('gives no bonus without the reply flag', () => {
+      const result = aggregateSignals([signal('keyword', 1)]);
+      expect(result.score).toBeCloseTo(SIGNAL_WEIGHTS.keyword, 5);
+    });
+
+    it('stays capped at 1 with the bonus', () => {
+      const result = aggregateSignals(
+        [signal('keyword', 1), signal('url', 1), signal('promo-mechanics', 1)],
+        { replyWithLink: true },
+      );
+      expect(result.score).toBe(1);
+    });
   });
 });

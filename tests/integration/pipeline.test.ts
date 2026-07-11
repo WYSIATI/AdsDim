@@ -135,6 +135,30 @@ describe('classifyTweet pipeline (fixture timeline)', () => {
       expect(classifyTweet(second, context()).classification.tier).toBeNull();
     });
   });
+
+  describe('reply-spam boost', () => {
+    it('a link-dropping spam reply is boosted from potential to soft', () => {
+      const article = fixtureArticle(doc, 'organic-en').cloneNode(true) as Element;
+      article.setAttribute('data-fixture-id', 'spam-reply');
+      article
+        .querySelector('[data-testid="User-Name"] a')!
+        .setAttribute('href', '/spammer/status/9201');
+      const body = article.querySelector('[data-testid="tweetText"]')!;
+      body.insertAdjacentHTML(
+        'beforebegin',
+        '<div dir="ltr">Replying to <a href="/victim">@victim</a></div>',
+      );
+      body.querySelector('span')!.textContent = 'Download now — link below';
+      body.insertAdjacentHTML(
+        'beforeend',
+        '<a href="https://apps.apple.com/app/id1">apps.apple.com/app/id1</a>',
+      );
+      doc.body.append(article);
+
+      const { classification } = classifyTweet(article, context());
+      expect(classification.tier).toBe('soft');
+    });
+  });
 });
 
 describe('resolveMarkTier', () => {

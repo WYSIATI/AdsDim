@@ -24,7 +24,25 @@ export function extractTweetData(article: Element): TweetData {
     authorName: extractAuthorName(article),
     authorHandle: extractAuthorHandle(article),
     urls: extractUrls(article, quotes),
+    isReply: detectIsReply(article),
   });
+}
+
+/** Leading text of a genuine reply-context row (en/zh UI). */
+const REPLY_TEXT_PATTERN = /^(?:replying to|回复)/i;
+
+/**
+ * A tweet is a reply when a context row above the body says "Replying to
+ * @x" / 回复. Candidates inside tweetText are the post's own words, and a
+ * real row always links the parent author's profile.
+ */
+function detectIsReply(article: Element): boolean {
+  return [...article.querySelectorAll(X_SELECTORS.replyContext)].some(
+    (candidate) =>
+      candidate.closest(X_SELECTORS.tweetText) === null &&
+      candidate.querySelector('a[href]') !== null &&
+      REPLY_TEXT_PATTERN.test((candidate.textContent ?? '').trim()),
+  );
 }
 
 /** Quote-repost cards: role="link" containers with their own tweet text. */
@@ -81,10 +99,7 @@ function extractUrls(article: Element, quotes: readonly Element[]): readonly str
   const urls = anchors.flatMap((anchor) => {
     const href = anchor.getAttribute('href');
     const text = (anchor.textContent ?? '').trim();
-    return [
-      ...(href ? [href] : []),
-      ...(DOMAIN_LIKE_TEXT.test(text) ? [text] : []),
-    ];
+    return [...(href ? [href] : []), ...(DOMAIN_LIKE_TEXT.test(text) ? [text] : [])];
   });
   return Object.freeze(urls);
 }

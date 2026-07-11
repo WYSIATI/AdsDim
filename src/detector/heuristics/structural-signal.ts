@@ -31,9 +31,10 @@ const countMatches = (text: string, pattern: RegExp): number => [...text.matchAl
 /**
  * Distinct external destinations. Relative paths (mention/hashtag anchors)
  * and X's own hosts are excluded; the t.co href and its display text would
- * otherwise double-count one link.
+ * otherwise double-count one link. Also used by classify-content to decide
+ * whether a reply actually carries a link (reply-spam bonus).
  */
-const countExternalUrls = (urls: readonly string[]): number => {
+export const countExternalUrls = (urls: readonly string[]): number => {
   const normalized = urls
     .map((url) =>
       url

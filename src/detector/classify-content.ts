@@ -4,7 +4,7 @@ import { discountCodeSignal } from './heuristics/discount-code-signal';
 import { keywordSignal } from './heuristics/keyword-signal';
 import { promoMechanicsSignal } from './heuristics/promo-mechanics-signal';
 import { aggregateSignals } from './heuristics/score-aggregator';
-import { structuralSignal } from './heuristics/structural-signal';
+import { countExternalUrls, structuralSignal } from './heuristics/structural-signal';
 import { urlSignal } from './heuristics/url-signal';
 import { mapAggregateToTier, thresholdsForSensitivity } from './tier-mapping';
 
@@ -12,6 +12,8 @@ import { mapAggregateToTier, thresholdsForSensitivity } from './tier-mapping';
 export interface TweetContent {
   readonly text: string;
   readonly urls: readonly string[];
+  /** True when the tweet is a reply (context row in the DOM). */
+  readonly isReply?: boolean;
 }
 
 /** User-tunable heuristic options (subset of Settings). */
@@ -49,7 +51,9 @@ export function classifyContent(
     structuralSignal(content.text, content.urls),
     ...extraSignals,
   ];
-  const aggregate = aggregateSignals(signals);
+  const aggregate = aggregateSignals(signals, {
+    replyWithLink: content.isReply === true && countExternalUrls(content.urls) > 0,
+  });
   const tier = mapAggregateToTier(aggregate, thresholdsForSensitivity(options.sensitivity));
 
   return {
