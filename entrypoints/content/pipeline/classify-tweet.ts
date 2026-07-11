@@ -1,13 +1,16 @@
 import type { LruCache } from '../../../src/cache/lru';
 import { classifyContent } from '../../../src/detector/classify-content';
 import { detectHardAd } from '../../../src/detector/hard-ad';
+import { repetitionSignal, type RepetitionTracker } from '../../../src/detector/repetition-tracker';
 import type { Settings } from '../../../src/storage/schema';
-import type { Classification, MarkTier, TweetData } from '../../../src/types';
+import type { Classification, MarkTier, SignalResult, TweetData } from '../../../src/types';
 import { extractTweetData } from '../extractor/tweet-extractor';
 
 export interface ClassifierContext {
   readonly settings: Settings;
   readonly cache: LruCache<string, Classification>;
+  /** Session-scoped shill-network memory (see repetition-tracker). */
+  readonly repetition: RepetitionTracker;
 }
 
 export interface ClassifyResult {
@@ -25,8 +28,11 @@ const ORGANIC: Classification = Object.freeze({
 const normalizeHandle = (handle: string): string => handle.replace(/^@/, '').toLowerCase();
 
 /**
- * Classification pipeline: whitelist -> cache -> hard-ad label -> heuristics.
- * Results are cached by tweet id so virtualized re-mounts are near free.
+ * Classification pipeline: whitelist -> repetition memory -> cache ->
+ * hard-ad label -> heuristics. Results are cached by tweet id so virtualized
+ * re-mounts are near free; a cached organic verdict is recomputed when the
+ * repetition tracker has since accumulated network evidence, so every
+ * matching post in the timeline eventually carries the repetition signal.
  */
 export function classifyTweet(article: Element, context: ClassifierContext): ClassifyResult {
   const data = extractTweetData(article);
@@ -35,17 +41,35 @@ export function classifyTweet(article: Element, context: ClassifierContext): Cla
     return { data, classification: ORGANIC };
   }
 
+  const repetition = repetitionSignal(
+    context.repetition.record(data.text, data.authorHandle, data.urls),
+  );
+
   const cached = context.cache.get(data.id);
-  if (cached) {
+  if (cached && !needsRepetitionUpgrade(cached, repetition)) {
     return { data, classification: cached };
   }
 
-  const classification = classify(article, data, context.settings);
+  const classification = classify(article, data, context.settings, repetition);
   context.cache.set(data.id, classification);
   return { data, classification };
 }
 
-function classify(article: Element, data: TweetData, settings: Settings): Classification {
+/** A cached verdict is stale once repetition evidence appeared after it. */
+function needsRepetitionUpgrade(cached: Classification, repetition: SignalResult): boolean {
+  return (
+    repetition.score > 0 &&
+    cached.source === 'heuristics' &&
+    !cached.signals.some((signal) => signal.id === 'repetition')
+  );
+}
+
+function classify(
+  article: Element,
+  data: TweetData,
+  settings: Settings,
+  repetition: SignalResult,
+): Classification {
   if (detectHardAd(article)) {
     return Object.freeze({
       tier: 'hard' as const,
@@ -58,6 +82,7 @@ function classify(article: Element, data: TweetData, settings: Settings): Classi
   const verdict = classifyContent(
     { text: data.text, urls: data.urls },
     { sensitivity: settings.sensitivity, keywords: settings.keywords },
+    [repetition],
   );
   return Object.freeze({
     tier: verdict.tier,

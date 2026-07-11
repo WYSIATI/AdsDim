@@ -1,5 +1,6 @@
 import { defineContentScript } from 'wxt/utils/define-content-script';
 import { LruCache } from '../../src/cache/lru';
+import { RepetitionTracker } from '../../src/detector/repetition-tracker';
 import { getMessages } from '../../src/i18n';
 import { X_SELECTORS } from '../../src/selectors/x-selectors';
 import { syncStorageArea, watchSettings } from '../../src/storage/browser-area';
@@ -33,6 +34,7 @@ async function bootstrap(): Promise<void> {
   let settings: Settings = await store.load();
 
   const cache = new LruCache<string, Classification>(CACHE_CAPACITY);
+  const repetition = new RepetitionTracker();
   let messages = getMessages(settings.locale);
   const viewport = createViewportObserver(window);
 
@@ -47,7 +49,7 @@ async function bootstrap(): Promise<void> {
   const processArticles = (articles: readonly Element[]): void => {
     if (!settings.enabled) return;
     for (const article of articles) {
-      const { classification } = classifyTweet(article, { settings, cache });
+      const { classification } = classifyTweet(article, { settings, cache, repetition });
       renderMark(
         article,
         resolveMarkTier(classification, settings),

@@ -31,9 +31,15 @@ export interface ContentVerdict {
 /**
  * Runs every heuristic signal over the tweet content and applies the
  * corroboration rule via `mapAggregateToTier`. Pure and DOM-free, so
- * regression suites can exercise real-world texts directly.
+ * regression suites can exercise real-world texts directly. Stateful
+ * evidence computed elsewhere (e.g. the session repetition tracker) joins
+ * the aggregation via `extraSignals`.
  */
-export function classifyContent(content: TweetContent, options: ContentOptions): ContentVerdict {
+export function classifyContent(
+  content: TweetContent,
+  options: ContentOptions,
+  extraSignals: readonly SignalResult[] = [],
+): ContentVerdict {
   const signals = [
     keywordSignal(content.text, options.keywords),
     urlSignal(content.urls),
@@ -41,6 +47,7 @@ export function classifyContent(content: TweetContent, options: ContentOptions):
     contactInfoSignal(content.text),
     promoMechanicsSignal(content.text, content.urls),
     structuralSignal(content.text, content.urls),
+    ...extraSignals,
   ];
   const aggregate = aggregateSignals(signals);
   const tier = mapAggregateToTier(aggregate, thresholdsForSensitivity(options.sensitivity));

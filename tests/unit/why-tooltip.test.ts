@@ -37,11 +37,18 @@ describe('buildWhyTitle', () => {
   });
 
   it('lists fired signals with their matches', () => {
-    const classification = heuristic([
-      signal('keyword', ['#ad']),
-      signal('url', ['amzn.to/3xYz']),
-    ]);
+    const classification = heuristic([signal('keyword', ['#ad']), signal('url', ['amzn.to/3xYz'])]);
     expect(buildWhyTitle(classification)).toBe('AdsDim: keyword(#ad), url(amzn.to/3xYz)');
+  });
+
+  it('renders round-2 signal ids generically', () => {
+    const classification = heuristic([
+      signal('repetition', ['identical text posted by 3 accounts']),
+      signal('structural', ['cashtag-spam(2)']),
+    ]);
+    expect(buildWhyTitle(classification)).toBe(
+      'AdsDim: repetition(identical text posted by 3 accounts), structural(cashtag-spam(2))',
+    );
   });
 
   it('keeps the tooltip compact: at most two matches per signal, long urls truncated', () => {

@@ -162,6 +162,45 @@ describe('weak-keyword expansion (2026-07)', () => {
   });
 });
 
+describe('repetition extra-signal integration (2026-07 round 2)', () => {
+  const repetition = {
+    id: 'repetition',
+    score: 1,
+    matches: ['identical text posted by 3 accounts'],
+    disclosure: true,
+  } as const;
+
+  it('a disclosure-grade repetition signal marks an otherwise organic post', () => {
+    const result = classifyContent(
+      { text: 'what a lovely product launch today', urls: [] },
+      DEFAULT_OPTIONS,
+      [repetition],
+    );
+    expect(result.tier).toBe('potential');
+    expect(result.signals.map((signal) => signal.id)).toContain('repetition');
+  });
+
+  it('repetition plus a weak keyword stays potential and corroborated', () => {
+    const result = classifyContent(
+      { text: 'lifetime deal on this app, wild', urls: [] },
+      DEFAULT_OPTIONS,
+      [repetition],
+    );
+    expect(result.tier).toBe('potential');
+  });
+
+  it('a silent extra signal changes nothing', () => {
+    const silent = { id: 'repetition', score: 0, matches: [], disclosure: false } as const;
+    const result = classifyContent(
+      { text: 'what a lovely sunset over the bay', urls: [] },
+      DEFAULT_OPTIONS,
+      [silent],
+    );
+    expect(result.tier).toBeNull();
+    expect(result.signals).toEqual([]);
+  });
+});
+
 describe('structural signal corroboration (2026-07 round 2)', () => {
   it('weak keyword + shill structure -> potential', () => {
     expect(verdict('Last chance 🚀🚀🚀 $MOON $GEM').tier).toBe('potential');

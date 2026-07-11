@@ -17,6 +17,9 @@ export const SIGNAL_WEIGHTS: Readonly<Record<SignalId, number>> = {
   // Weak structural shape (hashtag floods, emoji clusters): never enough on
   // its own, only ever a corroborating nudge.
   structural: 0.25,
+  // Cross-author repetition is disclosure-grade when 3+ accounts share one
+  // text, so the weight alone must clear the potential threshold (0.35).
+  repetition: 0.4,
 };
 
 /** Aggregated heuristic evidence for one tweet. */
