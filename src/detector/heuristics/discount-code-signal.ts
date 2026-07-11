@@ -11,10 +11,6 @@ const TOKEN_PATTERNS: readonly RegExp[] = [
   /(?:优惠码|折扣码|促销码|折扣代码|邀请码|注册码)[^,，。;；!！\n]{0,8}?[A-Za-z0-9-]{3,}/,
   /\b(?:use|with|using)\s+(?:my\s+)?code\s+[A-Z0-9-]{3,}/i,
   /\bcode\s*[:：]\s*[A-Z0-9-]{4,}/,
-  // Giveaway mechanics: a prize plus entry instructions is always marketing
-  // ("$300 Giveaway ... To enter: Follow @x, Repost").
-  /\bgiveaway\b[\s\S]{0,220}?\b(?:to\s+enter|follow\s+@|repost|retweet|winners?|tag\s+a?\s?friend)\b/i,
-  /(?:转发|关注|關注)[\s\S]{0,30}?抽奖|抽奖[\s\S]{0,30}?(?:转发|关注|參与|参与)/,
 ];
 
 /**

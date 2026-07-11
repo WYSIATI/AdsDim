@@ -11,6 +11,9 @@ export const SIGNAL_WEIGHTS: Readonly<Record<SignalId, number>> = {
   // threshold (0.35) on its own.
   'discount-code': 0.4,
   'contact-info': 0.2,
+  // Same rationale as discount-code: mechanics are disclosure-grade, so the
+  // weight alone must clear the potential threshold (0.35).
+  'promo-mechanics': 0.4,
 };
 
 /** Aggregated heuristic evidence for one tweet. */

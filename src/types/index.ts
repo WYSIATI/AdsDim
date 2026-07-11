@@ -34,7 +34,7 @@ export interface SignalResult {
   readonly disclosure?: boolean;
 }
 
-export type SignalId = 'keyword' | 'url' | 'discount-code' | 'contact-info';
+export type SignalId = 'keyword' | 'url' | 'discount-code' | 'contact-info' | 'promo-mechanics';
 
 /** Visual scheme names (see design/preview-v2-inverted.html). */
 export type Scheme = 'glass' | 'glow' | 'theater';

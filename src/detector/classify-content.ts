@@ -2,6 +2,7 @@ import type { AdTier, SignalResult } from '../types';
 import { contactInfoSignal } from './heuristics/contact-info-signal';
 import { discountCodeSignal } from './heuristics/discount-code-signal';
 import { keywordSignal } from './heuristics/keyword-signal';
+import { promoMechanicsSignal } from './heuristics/promo-mechanics-signal';
 import { aggregateSignals } from './heuristics/score-aggregator';
 import { urlSignal } from './heuristics/url-signal';
 import { mapAggregateToTier, thresholdsForSensitivity } from './tier-mapping';
@@ -37,6 +38,7 @@ export function classifyContent(content: TweetContent, options: ContentOptions):
     urlSignal(content.urls),
     discountCodeSignal(content.text),
     contactInfoSignal(content.text),
+    promoMechanicsSignal(content.text),
   ];
   const aggregate = aggregateSignals(signals);
   const tier = mapAggregateToTier(aggregate, thresholdsForSensitivity(options.sensitivity));
